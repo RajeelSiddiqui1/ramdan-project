@@ -1,0 +1,19 @@
+{% extends "base.html" %}
+
+{% block title %}
+    Confirm Delete
+{% endblock %}
+
+{% block content %}
+    <div class="container mt-4">
+        <h2 class="text-white text-center">Are you sure you want to delete this staff?</h2>
+        
+        <div class="text-center mt-3">
+            <form method="post">
+                {% csrf_token %}
+                <button type="submit" class="btn btn-danger">Yes, Delete</button>
+                <a href="{% url 'admin_side:staff_list' %}" class="btn btn-success">Cancel</a>
+            </form>
+        </div>
+    </div>
+{% endblock %}

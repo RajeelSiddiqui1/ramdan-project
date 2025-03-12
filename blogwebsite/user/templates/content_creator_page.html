@@ -1,0 +1,264 @@
+{% extends "layout.html" %}
+
+{% block title %}
+Become a Content Creator - BlogSphere
+{% endblock %}
+
+{% block content %}
+<!-- Hero Section -->
+<section class="hero-section">
+    <div class="container text-center position-relative z-1">
+        <h1 class="display-4 fw-bold text-white mb-3 animate__animated animate__fadeIn">Become a Content Creator</h1>
+        <p class="lead text-white mb-5 animate__animated animate__fadeIn" style="animation-delay: 0.2s;">
+            Inspire, engage, and grow your audience with BlogSphere’s powerful platform for creators worldwide.
+        </p>
+        <a href="{% url 'content_creator_form' %}" class="btn btn-primary btn-lg px-5 py-3 fw-semibold rounded-pill animate__animated animate__zoomIn" style="animation-delay: 0.4s;">
+            Start Creating Now
+        </a>
+    </div>
+    <div class="hero-overlay"></div>
+</section>
+
+<!-- Content Creator Details -->
+<section class="content-section py-5">
+    <div class="container">
+        <h2 class="text-center fw-bold mb-5 text-dark">Why Choose BlogSphere?</h2>
+        <div class="row g-4 justify-content-center">
+            <div class="col-md-4">
+                <div class="card h-100 border-0 shadow-sm">
+                    <div class="card-body text-center p-4">
+                        <i class="fas fa-globe fa-3x text-primary mb-4"></i>
+                        <h5 class="card-title fw-semibold text-dark">Global Reach</h5>
+                        <p class="card-text text-muted">Connect with readers across 20+ countries and amplify your voice globally.</p>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-4">
+                <div class="card h-100 border-0 shadow-sm">
+                    <div class="card-body text-center p-4">
+                        <i class="fas fa-tools fa-3x text-primary mb-4"></i>
+                        <h5 class="card-title fw-semibold text-dark">Creator Tools</h5>
+                        <p class="card-text text-muted">Effortlessly craft stunning blogs with our intuitive, user-friendly editor.</p>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-4">
+                <div class="card h-100 border-0 shadow-sm">
+                    <div class="card-body text-center p-4">
+                        <i class="fas fa-star fa-3x text-primary mb-4"></i>
+                        <h5 class="card-title fw-semibold text-dark">Earn Recognition</h5>
+                        <p class="card-text text-muted">Get featured and build your personal brand as a celebrated writer.</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Creator Benefits -->
+        <div class="benefits-section mt-5 py-5 bg-light rounded-3 shadow-sm text-center">
+            <h3 class="fw-bold mb-4 text-dark">Unlock Creator Benefits</h3>
+            <p class="lead text-muted mb-5">Empower your creative journey with exclusive tools and support.</p>
+            <div class="row g-4 justify-content-center">
+                <div class="col-md-4">
+                    <div class="benefit-item">
+                        <i class="fas fa-chart-line fa-2x text-success mb-3"></i>
+                        <p class="text-muted">Real-time performance analytics</p>
+                    </div>
+                </div>
+                <div class="col-md-4">
+                    <div class="benefit-item">
+                        <i class="fas fa-calendar-check fa-2x text-success mb-3"></i>
+                        <p class="text-muted">Exclusive creator events</p>
+                    </div>
+                </div>
+                <div class="col-md-4">
+                    <div class="benefit-item">
+                        <i class="fas fa-users fa-2x text-success mb-3"></i>
+                        <p class="text-muted">Collaboration opportunities</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- Countries Section -->
+<section class="content-section bg-light py-5">
+    <div class="container">
+        <h2 class="text-center fw-bold mb-4 text-dark">Our Global Community</h2>
+        <p class="text-center text-muted mb-5">Join creators and readers from over 20 countries worldwide.</p>
+        <div class="row row-cols-1 row-cols-md-4 g-4">
+            {% for item in con %}
+                <div class="col">
+                    <div class="card border-0 shadow-sm h-100">
+                        <img src="{{ item.country_image.url }}" class="card-img-top" alt="{{ item.name }}">
+                        <div class="card-body text-center p-3">
+                            <h6 class="card-title fw-medium mb-0 text-dark">{{ item.name }}</h6>
+                        </div>
+                    </div>
+                </div>
+            {% empty %}
+                <div class="col-12 text-center text-muted">No countries available yet.</div>
+            {% endfor %}
+        </div>
+    </div>
+</section>
+
+<style>
+    /* General Styles */
+    body {
+        font-family: 'Roboto', sans-serif;
+        color: #333;
+        line-height: 1.6;
+        background-color: #f8f9fa;
+    }
+
+    /* Hero Section */
+    .hero-section {
+        background: linear-gradient(135deg, #1e3c72 0%, #2a5298 100%);
+        color: #ffffff;
+        padding: 8rem 0;
+        position: relative;
+        overflow: hidden;
+    }
+    .hero-overlay {
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background: url('https://www.transparenttextures.com/patterns/soft-pad.png') repeat, rgba(0, 0, 0, 0.3);
+        opacity: 0.6;
+        z-index: 0;
+    }
+    .hero-section .container {
+        position: relative;
+        z-index: 1;
+    }
+    .hero-section h1 {
+        font-size: 3.5rem;
+        font-weight: 700;
+        letter-spacing: -1px;
+    }
+    .hero-section .lead {
+        font-size: 1.5rem;
+        max-width: 800px;
+        margin: 0 auto;
+        opacity: 0.95;
+    }
+    .btn-primary {
+        background-color: #f39c12;
+        border: none;
+        padding: 14px 32px;
+        font-size: 1.2rem;
+        border-radius: 50px;
+        transition: background-color 0.3s ease, transform 0.2s ease;
+    }
+    .btn-primary:hover {
+        background-color: #e67e22;
+        transform: scale(1.05);
+    }
+
+    /* Content Section */
+    .content-section {
+        padding: 6rem 0;
+    }
+    .content-section h2 {
+        font-size: 2.75rem;
+        font-weight: 700;
+        letter-spacing: -0.5px;
+    }
+    .card {
+        border: none;
+        box-shadow: 0 6px 18px rgba(0, 0, 0, 0.1);
+        border-radius: 15px;
+        background: #ffffff;
+        transition: transform 0.3s ease, box-shadow 0.3s ease;
+    }
+    .card:hover {
+        transform: translateY(-10px);
+        box-shadow: 0 12px 24px rgba(0, 0, 0, 0.15);
+    }
+    .card-body {
+        padding: 2rem;
+    }
+    .card-title {
+        font-size: 1.5rem;
+        font-weight: 600;
+    }
+    .card-text {
+        font-size: 1rem;
+        color: #666;
+    }
+    .fa-3x {
+        color: #f39c12;
+    }
+
+    /* Benefits Section */
+    .benefits-section {
+        background: linear-gradient(135deg, #ffffff 0%, #f9f9f9 100%);
+        border-radius: 20px;
+    }
+    .benefit-item {
+        padding: 1rem;
+    }
+    .benefit-item i {
+        color: #27ae60;
+        transition: transform 0.3s ease;
+    }
+    .benefit-item:hover i {
+        transform: scale(1.2);
+    }
+    .benefit-item p {
+        font-size: 1rem;
+        margin: 0;
+    }
+
+    /* Countries Section */
+    .country-grid .card-img-top {
+        height: 160px;
+        object-fit: cover;
+        border-radius: 15px 15px 0 0;
+    }
+    .country-grid .card-body {
+        padding: 1.25rem;
+    }
+    .country-grid .card-title {
+        font-size: 1.1rem;
+    }
+
+    /* Responsive Design */
+    @media (max-width: 768px) {
+        .hero-section {
+            padding: 5rem 0;
+        }
+        .hero-section h1 {
+            font-size: 2.5rem;
+        }
+        .hero-section .lead {
+            font-size: 1.2rem;
+        }
+        .btn-primary {
+            padding: 12px 24px;
+            font-size: 1rem;
+        }
+        .content-section {
+            padding: 4rem 0;
+        }
+        .content-section h2 {
+            font-size: 2rem;
+        }
+        .card-title {
+            font-size: 1.25rem;
+        }
+        .card-text, .benefit-item p {
+            font-size: 0.9rem;
+        }
+        .country-grid .card-img-top {
+            height: 120px;
+        }
+    }
+</style>
+
+<!-- Add Animate.css for subtle animations -->
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/4.1.1/animate.min.css" />
+{% endblock %}

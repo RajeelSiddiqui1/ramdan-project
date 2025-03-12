@@ -1,0 +1,121 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8"/>
+  <meta http-equiv="X-UA-Compatible" content="IE=edge"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no"/>
+  <meta name="description" content=""/>
+  <meta name="author" content=""/>
+  <title>Dashtreme Admin - Free Dashboard for Bootstrap 4 by Codervent</title>
+
+  <!-- CSS Files -->
+  <link href="{% static 'admin_side/css/pace.min.css' %}" rel="stylesheet"/>
+  <link href="{% static 'admin_side/css/plugins/vectormap/jquery-jvectormap-2.0.2.css' %}" rel="stylesheet"/>
+  <link href="{% static 'admin_side/css/plugins/simplebar/simplebar.css' %}" rel="stylesheet"/>
+  <link href="{% static 'admin_side/css/bootstrap.min.css' %}" rel="stylesheet"/>
+  <link href="{% static 'admin_side/css/animate.css' %}" rel="stylesheet"/>
+  <link href="{% static 'admin_side/css/icons.css' %}" rel="stylesheet"/>
+  <link href="{% static 'admin_side/css/sidebar-menu.css' %}" rel="stylesheet"/>
+  <link href="{% static 'admin_side/css/app-style.css' %}" rel="stylesheet"/>
+
+  <!-- JavaScript -->
+  <script src="{% static 'admin_side/js/pace.min.js' %}"></script>
+
+  <!-- Favicon -->
+  <link rel="icon" href="{% static 'admin_side/images/favicon.ico' %}" type="image/x-icon">
+</head>
+<body>
+
+  <div class="container">
+    <div class="row">
+        <div class="col-md-4">
+            <div class="card mt-5">
+                <div class="card-header">
+                    <h2 class="text-center">Admin Signup</h2>
+                </div>
+                <div class="card-body">
+                    <form method="post">
+                        {% csrf_token %}
+                        {{ form.as_p }}
+                        <button type="submit" class="btn btn-primary w-100">Signup</button>
+                    </form>
+                    <div class="mt-2 text-center">
+                        <a href="{% url 'admin_side:admin_login' %}">Login</a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    </div>
+  </div>
+
+ <div class="right-sidebar">
+    <div class="switcher-icon">
+      <i class="zmdi zmdi-settings zmdi-hc-spin"></i>
+    </div>
+    <div class="right-sidebar-content">
+
+      <p class="mb-0">Gaussion Texture</p>
+      <hr>
+      
+      <ul class="switcher">
+        <li id="theme1"></li>
+        <li id="theme2"></li>
+        <li id="theme3"></li>
+        <li id="theme4"></li>
+        <li id="theme5"></li>
+        <li id="theme6"></li>
+      </ul>
+
+      <p class="mb-0">Gradient Background</p>
+      <hr>
+      
+      <ul class="switcher">
+        <li id="theme7"></li>
+        <li id="theme8"></li>
+        <li id="theme9"></li>
+        <li id="theme10"></li>
+        <li id="theme11"></li>
+        <li id="theme12"></li>
+		<li id="theme13"></li>
+        <li id="theme14"></li>
+        <li id="theme15"></li>
+      </ul>
+      
+     </div>
+   </div>
+  <!--end color switcher-->
+   
+  </div><!--End wrapper-->
+
+
+
+  <script src="{% static 'admin_side/js/jquery.min.js' %}"></script>
+
+  <!-- Popper.js -->
+  <script src="{% static 'admin_side/js/popper.min.js' %}"></script>
+
+  <!-- Bootstrap -->
+  <script src="{% static 'admin_side/js/bootstrap.min.js' %}"></script>
+
+  <!-- Simplebar JS -->
+  <script src="{% static 'admin_side/plugins/simplebar/simplebar.js' %}"></script>
+
+  <!-- Sidebar Menu JS -->
+  <script src="{% static 'admin_side/js/sidebar-menu.js' %}"></script>
+
+  <!-- Loader Scripts -->
+  <script src="{% static 'admin_side/js/jquery.loading-indicator.js' %}"></script>
+
+  <!-- Custom Scripts -->
+  <script src="{% static 'admin_side/js/app-script.js' %}"></script>
+
+  <!-- Chart.js -->
+  <script src="{% static 'admin_side/plugins/chartjs/Chart.min.js' %}"></script>
+
+  <!-- Index JS -->
+  <script src="{% static 'admin_side/js/index.js' %}"></script>
+  
+</body>
+</html>

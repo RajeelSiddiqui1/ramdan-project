@@ -1,0 +1,287 @@
+{% extends "creator_base.html" %}
+{% load static %}
+
+{% block content %}
+<div class="container mt-5">
+    {% if messages %}
+    <div class="row mt-3">
+        {% for message in messages %}
+        <div class="alert alert-{{ message.tags }} alert-dismissible fade show" role="alert">
+            {{ message }}
+            
+        </div>
+        {% endfor %}
+    </div>
+    {% endif %}
+    <!-- Profile Header Section with Glass Effect -->
+    <div class="card glass-card shadow-lg border-0 position-relative overflow-hidden animate__animated animate__fadeIn">
+        <!-- Background Photo with Overlay -->
+        <div class="position-relative">
+            <img src="{{ creator.background_photo.url }}" 
+                 class="img-fluid w-100 bg-image" 
+                 style="height: 250px; object-fit: cover;" 
+                 alt="Profile Background">
+            <div class="overlay"></div>
+            <!-- Profile Photo -->
+            <div class="position-absolute profile-photo-container" style="bottom: -70px; left: 30px;">
+                <img src="{{ creator.photo.url }}" 
+                     class="rounded-circle border border-4 border-teal shadow" 
+                     style="width: 140px; height: 140px; object-fit: cover;" 
+                     alt="Profile Photo">
+            </div>
+        </div>
+        
+        <!-- Profile Details with Glass Card -->
+        <div class="card-body pt-5 glass-content mt-4">
+            <div class="row align-items-center">
+                <div class="col-md-8">
+                    <h2 class="mb-1 text-white animate__animated animate__fadeInUp">{{ creator_name }}{% if creator.last_name %} {{ creator.last_name }}{% endif %}</h2>
+                    <p class="text-teal mb-2 my-2">Email: <strong>{{ creator.email }}</strong></p>
+
+                    <div class="d-flex flex-wrap gap-3">
+                        <div>
+                            <p class="text-teal mb-2 me-3">Phone: <strong>{{ creator.phone_number|default:"Not provided" }}</strong></p>
+                        </div>
+                        <div class="mx-3">
+                            <p class="text-teal mb-2">Country: <strong>{{ creator.country }}</strong></p>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-4 text-md-end mt-3 mt-md-0">
+                    {% comment %} <a href="{% url 'creator_dashboard:update_profile' %}" 
+                       class="btn btn-glass btn-teal me-2 animate__animated animate__pulse animate__infinite">
+                        <i class="fas fa-edit me-1"></i> Edit Profile
+                    </a> {% endcomment %}
+                    <a href="{% url 'creator_dashboard:creator_logout' %}" 
+                       class="btn btn-glass btn-danger">
+                        <i class="fas fa-sign-out-alt me-1"></i> Logout
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Dashboard Content -->
+    <div class="row mt-5">
+        <div class="col-12">
+            <div class="card glass-card shadow-lg border-0 animate__animated animate__zoomIn">
+                <div class="card-body p-4">
+                    <h2 class="card-title text-white mb-3"><i class="fas fa-tachometer-alt me-2 text-teal"></i>Welcome to Your Dashboard</h2>
+                    <h4 class="text-warning">Bio:</h4>
+                    <p class="text-white">{{ creator.bio|default:"Tell us about yourself!" }}</p>
+                    <!-- Dashboard Widgets -->
+                    <div class="row mt-4">
+                        <div class="col-md-6 mb-3">
+                            <div class="glass-widget p-3">
+                                <h5 class="text-white"><i class="fas fa-chart-line me-2 text-purple"></i>Education:</h5>
+                                <p class="text-white">{{ creator.education|default:"No education details provided." }}</p>
+                            </div>
+                        </div>
+                        <div class="col-md-6 mb-3">
+                            <div class="glass-widget p-3">
+                                <h5 class="text-white"><i class="fas fa-clock me-2 text-orange"></i>Recent Activity</h5>
+                                <ul class="text-light list-unstyled">
+                                    {% for activity in recent_activities %}
+                                        <li>{{ activity.timestamp }} - {{ activity.description }}</li>
+                                    {% empty %}
+                                        <li>No recent activity to display.</li>
+                                    {% endfor %}
+                                </ul>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="card-body pt-5 glass-content mt-4">
+        <div class="row">
+            <h2>My Blogs</h2>
+        </div>
+        <div class="row align-items-center">
+            {% for item in blogs|dictsortreversed:"views_count" %}
+        <div class="col-4 mt-3">
+            <div class="card shadow-lg border-0 rounded-4 overflow-hidden">
+                <div class="position-relative">
+                    <img src="{{ item.photo.url }}" class="card-img-top rounded-top-4"
+                         alt="Blog Image" style="height: 220px; object-fit: cover;">
+                    
+                    <!-- Rank Badge -->
+                    <div class="position-absolute top-0 start-0 m-2 bg-dark text-white px-3 py-1 rounded-pill small">
+                        #{{ forloop.counter }}️⃣
+                    </div>
+
+                    <!-- Category Label -->
+                    <div class="position-absolute top-0 end-0 m-2 bg-primary text-white px-3 py-1 rounded-pill small">
+                        {{ item.category.name }}
+                    </div>
+
+                    <!-- Views Count Label -->
+                    <div class="position-absolute bottom-0 start-0 w-100 text-white p-2 bg-gradient shadow"
+                         style="backdrop-filter: blur(5px); font-size: 14px;">
+                        👁️ {{ item.views_count }} Views
+                    </div>
+                </div>
+
+                <div class="card-body">
+                    <h5 class="card-title text-warning fw-bold">{{ item.name }}</h5>
+                    <p class="card-text text-white">{{ item.description | truncatewords:15 }}</p>
+                    <div class="d-flex justify-content-between align-items-center">
+                       <a href="{% url 'creator_dashboard:blog_views_check' item.id %}" class="btn btn-warning">Check views</a>
+                        {% if item.views_count > 6 %}
+                        <span class="badge bg-danger px-3 py-2">🔥 Viral</span>
+                        {% elif item.views_count >= 6 %}
+                        <span class="badge bg-warning px-3 py-2">🚀 Trending</span>
+                        {% else %}
+                            <span class="badge bg-info px-3 py-2">📖 New & Noteworthy</span>
+                        {% endif %}
+                    </div>
+                </div>
+
+               
+               
+            </div>
+        </div>
+        {% endfor %}
+        </div>
+    </div>
+
+</div>
+{% endblock %}
+
+{% block extra_css %}
+<!-- Font Awesome -->
+<link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css" rel="stylesheet">
+<!-- Animate.css for animations -->
+<link href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/4.1.1/animate.min.css" rel="stylesheet">
+<style>
+    /* Glassmorphism Styling */
+    .glass-card {
+        background: rgba(255, 255, 255, 0.1);
+        border-radius: 15px;
+        backdrop-filter: blur(12px);
+        -webkit-backdrop-filter: blur(12px);
+        border: 1px solid rgba(255, 255, 255, 0.25);
+        transition: all 0.3s ease;
+    }
+
+    .glass-card:hover {
+        transform: translateY(-5px);
+        box-shadow: 0 15px 35px rgba(0, 0, 0, 0.25) !important;
+    }
+
+    .bg-image {
+        position: absolute;
+        top: 0;
+        left: 0;
+        z-index: -1;
+        transition: transform 0.5s ease;
+    }
+
+    .glass-card:hover .bg-image {
+        transform: scale(1.05);
+    }
+
+    .overlay {
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background: linear-gradient(135deg, rgba(0, 0, 0, 0.5), rgba(0, 0, 0, 0.3));
+        z-index: 0;
+    }
+
+    .glass-content {
+        background: rgba(255, 255, 255, 0.08);
+        border-radius: 0 0 15px 15px;
+    }
+
+    /* Custom Colors */
+    .text-teal { color: #00C4B4 !important; }
+    .text-purple { color: #BB86FC !important; }
+    .text-orange { color: #FF7043 !important; }
+    .border-teal { border-color: #00C4B4 !important; }
+
+    /* Button Styling */
+    .btn-glass {
+        background: rgba(255, 255, 255, 0.15);
+        border: 1px solid rgba(255, 255, 255, 0.3);
+        backdrop-filter: blur(5px);
+        -webkit-backdrop-filter: blur(5px);
+        color: #FFFFFF;
+        transition: all 0.3s ease;
+    }
+
+    .btn-glass:hover {
+        background: rgba(255, 255, 255, 0.25);
+        transform: translateY(-2px);
+        color: #FFFFFF;
+    }
+
+    .btn-teal { background: #00C4B4; border: none; }
+    .btn-teal:hover { background: #00A99D; }
+    .btn-danger { background: #FF4D4F; border: none; }
+    .btn-danger:hover { background: #E64446; }
+
+    .glass-widget {
+        background: rgba(255, 255, 255, 0.12);
+        border-radius: 10px;
+        border: 1px solid rgba(255, 255, 255, 0.2);
+        transition: all 0.3s ease;
+    }
+
+    .glass-widget:hover {
+        background: rgba(255, 255, 255, 0.18);
+        transform: translateY(-3px);
+    }
+
+    .profile-photo-container img {
+        transition: transform 0.3s ease;
+    }
+
+    .profile-photo-container:hover img {
+        transform: scale(1.1);
+    }
+
+    /* Scrollable Activity List */
+    .glass-widget ul {
+        max-height: 150px;
+        overflow-y: auto;
+        padding-left: 0;
+    }
+
+    /* Responsive Adjustments */
+    @media (max-width: 768px) {
+        .profile-photo-container {
+            bottom: -50px;
+            left: 15px;
+        }
+        .profile-photo-container img {
+            width: 100px;
+            height: 100px;
+        }
+        .card-body {
+            padding-top: 3rem !important;
+        }
+        .btn-glass {
+            width: 100%;
+            margin-bottom: 10px;
+        }
+    }
+</style>
+{% endblock %}
+
+{% block extra_js %}
+<!-- Add some interactivity -->
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        const profilePhoto = document.querySelector('.profile-photo-container img');
+        profilePhoto.addEventListener('click', function() {
+            this.classList.toggle('animate__animated');
+            this.classList.toggle('animate__tada');
+        });
+    });
+</script>
+{% endblock %}

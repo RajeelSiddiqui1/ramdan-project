@@ -1,0 +1,118 @@
+{% extends 'creator_base.html' %}
+{% load static %}
+
+{% block content %}
+<div class="container-fluid py-5 blog-detail-container">
+    <div class="row justify-content-center">
+        <div class="col-lg-8 col-md-10">
+            <!-- Glass Card -->
+            <div class="glass-card">
+                <!-- Blog Image -->
+                {% if blog.photo %}
+                <div class="blog-image">
+                    <img src="{{ blog.photo.url }}" alt="{{ blog.name }}" class="img-fluid rounded-top">
+                </div>
+                {% endif %}
+
+                <!-- Blog Content -->
+                <div class="p-4">
+                    <h1 class="blog-title">{{ blog.name }}</h1>
+                    <div class="blog-meta mb-3">
+                        <span class="meta-item">
+                            <i class="bi bi-person"></i>
+                            {% if blog.author %}
+                                {{ blog.author.username }}
+                            {% elif blog.Admin %}
+                                {{ blog.Admin.name }}
+                            {% else %}
+                                Anonymous
+                            {% endif %}
+                        </span>
+                        <span class="meta-item">
+                            <i class="bi bi-calendar"></i>
+                            {{ blog.created_at|date:"F d, Y" }}
+                        </span>
+                        <span class="meta-item">
+                            <i class="bi bi-eye"></i>
+                            {{ blog.views_count }} Views
+                        </span>
+                    </div>
+                    <p class="blog-description">{{ blog.description|linebreaks }}</p>
+                </div>
+            </div>
+
+            <!-- Back Button -->
+            <div class="mt-4 text-center">
+                <a href="{% url 'creator_dashboard:blog_list2' %}" class="btn btn-outline-light glass-btn">Back to Blogs</a>
+            </div>
+        </div>
+    </div>
+</div>
+
+<style>
+/* Glassmorphism Styles */
+.blog-detail-container {
+    background: linear-gradient(135deg, #1e3c72, #2a5298);
+    min-height: 100vh;
+    padding-top: 80px;
+}
+
+.glass-card {
+    background: rgba(255, 255, 255, 0.1);
+    border-radius: 15px;
+    box-shadow: 0 8px 32px 0 rgba(31, 38, 135, 0.37);
+    backdrop-filter: blur(10px);
+    -webkit-backdrop-filter: blur(10px);
+    border: 1px solid rgba(255, 255, 255, 0.18);
+    overflow: hidden;
+}
+
+.blog-image img {
+    width: 100%;
+    height: 400px;
+    object-fit: cover;
+}
+
+.blog-title {
+    color: #fff;
+    font-size: 2.5rem;
+    font-weight: 700;
+    margin-bottom: 1rem;
+    text-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+}
+
+.blog-meta {
+    color: rgba(255, 255, 255, 0.8);
+    font-size: 0.9rem;
+}
+
+.meta-item {
+    margin-right: 1.5rem;
+}
+
+.meta-item i {
+    margin-right: 0.3rem;
+}
+
+.blog-description {
+    color: #fff;
+    font-size: 1.1rem;
+    line-height: 1.6;
+}
+
+.glass-btn {
+    background: rgba(255, 255, 255, 0.1);
+    border: 1px solid rgba(255, 255, 255, 0.3);
+    color: #fff;
+    padding: 0.5rem 2rem;
+    border-radius: 25px;
+    transition: all 0.3s ease;
+}
+
+.glass-btn:hover {
+    background: rgba(255, 255, 255, 0.2);
+    color: #fff;
+    box-shadow: 0 4px 15px rgba(255, 255, 255, 0.2);
+}
+</style>
+{% endblock %}

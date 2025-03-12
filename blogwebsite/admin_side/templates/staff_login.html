@@ -1,0 +1,23 @@
+<!-- admin_side/templates/admin_login.html -->
+{% extends 'base.html' %}
+{% block content %}
+<div class="row justify-content-center">
+    <div class="col-md-4">
+        <div class="card mt-5">
+            <div class="card-header">
+                <h2 class="text-center">Admin Login</h2>
+            </div>
+            <div class="card-body">
+                <form method="post">
+                    {% csrf_token %}
+                    {{ form.as_p }}
+                    <button type="submit" class="btn btn-primary w-100">Login</button>
+                </form>
+                <div class="mt-2 text-center">
+                    <a href="{% url 'admin_side:staff_login' %}">Staff Login</a>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

@@ -1,0 +1,94 @@
+{% extends "layout.html" %}
+
+{% block title %}
+{% if form.instance.pk %}
+    Edit Blog
+{% else %}
+    Create Blog
+{% endif %}
+{% endblock %}
+
+{% block content %}
+
+<div class="container d-flex justify-content-center align-items-center my-3">
+    <div class="col-md-8 col-lg-6">
+        <div class="card shadow-lg border-0 rounded-4 bg-dark text-light">
+            <div class="card-header bg-gradient bg-primary text-white text-center py-3">
+                <h3 class="fw-bold">
+                    {% if form.instance.pk %}
+                        Edit Blog
+                    {% else %}
+                        Create Blog
+                    {% endif %}
+                </h3>
+            </div>
+            <div class="card-body p-4">
+                <form method="post" enctype="multipart/form-data" class="needs-validation" novalidate>
+                    {% csrf_token %}
+                    <div class="mb-3">
+                        <label class="form-label fw-bold text-light">Title</label>
+                        <div class="input-group">
+                            <span class="input-group-text bg-black text-white"><i class="fas fa-heading"></i></span>
+                            {{ form.name }}
+                        </div>
+                    </div>
+
+                    <div class="mb-3">
+                        <label class="form-label fw-bold text-light">Description</label>
+                        <div class="input-group">
+                            <span class="input-group-text bg-black text-white"><i class="fas fa-align-left"></i></span>
+                            {{ form.description }}
+                        </div>
+                    </div>
+
+                    <div class="mb-3">
+                        <label class="form-label fw-bold text-light">Category</label>
+                        <div class="input-group">
+                            <span class="input-group-text bg-black text-white"><i class="fas fa-list"></i></span>
+                            {{ form.category }}
+                        </div>
+                    </div>
+
+                    <div class="mb-3">
+                        <label class="form-label fw-bold text-light">Upload Image</label>
+                        <div class="input-group">
+                            <span class="input-group-text bg-black text-white"><i class="fas fa-image"></i></span>
+                            {{ form.photo }}
+                        </div>
+                    </div>
+
+                    <div class="d-grid mt-4">
+                        <button type="submit" class="btn btn-success fw-bold py-2">Submit <i class="fas fa-check-circle"></i></button>
+                    </div>
+                </form>
+            </div>
+            <div class="card-footer text-center bg-black">
+                <a href="{% url 'index' %}" class="btn btn-outline-success fw-bold">Back to Blogs <i class="fas fa-arrow-left"></i></a>
+            </div>
+        </div>
+    </div>
+</div>
+<style>
+    body {
+        background-color: #212121;
+        color: white;
+    }
+    
+    input, textarea, select {
+        background-color: #333 !important;
+        color: #fff !important;
+        border: 1px solid #555 !important;
+        border-radius: 8px;
+        padding: 10px;
+    }
+    
+    input::placeholder, textarea::placeholder, select {
+        color: #bbb !important;
+    }
+    
+    .input-group-text {
+        border-radius: 8px 0 0 8px !important;
+    }
+    
+</style>
+{% endblock %}

@@ -1,0 +1,103 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="container my-5">
+    <div class="row justify-content-center">
+        <div class="col-md-5">
+            <div class="glass-card p-4">
+                <h2 class="text-center mb-4 text-white">
+                    {{ title|default:"Add New Staff" }}
+                </h2>
+                <form method="post" enctype="multipart/form-data">
+                    {% csrf_token %}
+                    {% if staff and staff.image and title == "Edit Staff" %}
+                    <div class="text-center mb-3">
+                        <img src="{{ staff.image.url }}" alt="{{ staff.name }}" class="rounded-circle" style="width: 100px; height: 150px; object-fit: cover;">
+                        <p class="text-white mt-2">Current Image</p>
+                    </div>
+                    {% endif %}
+                    {% for field in form %}
+                    <p>
+                        {{ field.label_tag }}
+                        {% if field.name == "password" %}
+                        <div class="input-group">
+                            {{ field }}
+                            <span class="input-group-text toggle-password">
+                                <i class="fa fa-eye" aria-hidden="true"></i>
+                            </span>
+                        </div>
+                        {% else %}
+                        {{ field }}
+                        {% endif %}
+                        {% if field.errors %}
+                        <span class="text-danger">{{ field.errors.0 }}</span>
+                        {% endif %}
+                    </p>
+                    {% endfor %}
+                    <div class="d-grid mt-4">
+                        <button type="submit" class="btn btn-info fw-bold py-2 text-white">Submit</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Font Awesome CDN -->
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css" integrity="sha512-Fo3rlrZj/k7ujTnHg4CGR2D7kSs0v4LLanw2qksYuRlEzO+tcaEPQogQ0KaoGN26/zrn20ImR1DfuLWnOo7aBA==" crossorigin="anonymous" referrerpolicy="no-referrer" />
+
+<script>
+    document.addEventListener('DOMContentLoaded', function () {
+        const togglePassword = document.querySelector('.toggle-password');
+        const passwordField = document.querySelector('#id_password');
+
+        if (togglePassword && passwordField) {
+            togglePassword.addEventListener('click', function () {
+                const type = passwordField.getAttribute('type') === 'password' ? 'text' : 'password';
+                passwordField.setAttribute('type', type);
+                this.querySelector('i').classList.toggle('fa-eye');
+                this.querySelector('i').classList.toggle('fa-eye-slash');
+            });
+        }
+    });
+</script>
+
+<style>
+    .glass-card {
+        background: rgba(255, 255, 255, 0.1);
+        backdrop-filter: blur(10px);
+        -webkit-backdrop-filter: blur(10px);
+        border-radius: 15px;
+        border: 1px solid rgba(255, 255, 255, 0.2);
+        box-shadow: 0 4px 30px rgba(0, 0, 0, 0.1);
+    }
+
+    .glass-card p {
+        color: #fff;
+    }
+
+    .glass-card .form-control {
+        background: rgba(255, 255, 255, 0.2);
+        border: 1px solid rgba(255, 255, 255, 0.3);
+        color: #fff;
+    }
+
+    .glass-card .form-control:focus {
+        background: rgba(255, 255, 255, 0.3);
+        border-color: #80bdff;
+        box-shadow: 0 0 0 0.2rem rgba(0, 123, 255, 0.25);
+    }
+
+    .input-group-text {
+        background: rgba(255, 255, 255, 0.2);
+        border: 1px solid rgba(255, 255, 255, 0.3);
+        color: #fff;
+        cursor: pointer;
+    }
+
+    body {
+        background: linear-gradient(135deg, #1e3c72 0%, #2a5298 100%);
+        min-height: 100vh;
+    }
+</style>
+{% endblock %}

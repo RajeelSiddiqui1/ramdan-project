@@ -1,0 +1,61 @@
+{% extends 'creator_base.html' %}
+
+{% block content %}
+<div class="row mb-3 text-center">
+    <div class="col">
+        <h2>Published Blogs</h2>
+    </div>
+</div>
+<div class="row justify-content-end my-3">
+    <div class="col-3">
+        <a href="{% url 'creator_dashboard:blog_create' %}" class="btn btn-success">Create Blog</a>
+    </div>
+</div>
+{% if messages %}
+    {% for message in messages %}
+        <div class="alert {% if message.tags %}alert-{{ message.tags }}{% endif %} alert-dismissible fade show text-center" role="alert">
+            {{ message }}
+        </div>
+    {% endfor %}
+{% endif %}
+
+{% if blogs %}
+    <div class="table-responsive">
+        <table class="table table-striped ">
+            <thead class="table-dark">
+                <tr>
+                    <th>No.</th>
+                    <th>Title</th>
+                    <th>Description</th>
+                    <th>Image</th>
+                    <th>Created Date</th>
+                    <th>Status</th>
+                    <th>Edit</th>
+                    <th>Delete</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for blog in blogs %}
+                    <tr>
+                        <td>{{forloop.counter}}</td>
+                        <td>{{ blog.name }}</td>
+                        <td>{{ blog.description|truncatewords:5 }}</td>
+                        <td><img src="{{blog.photo.url}}" alt="" style="height: 40px; width: 40px; border-radius: 50%;"></td>
+
+                        <td>{{ blog.created_at|date:"Y-m-d" }}</td>
+                        <td>{{blog.status}}</td>
+                        <td><a href="{% url 'creator_dashboard:blog_edit' blog.id%}" class="btn btn-warning">Edit</a></td>
+                        <td><a href="{% url 'creator_dashboard:blog_delete' blog.id%}" class="btn btn-danger">Delete</a></td>
+                     
+
+                    </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+{% else %}
+    <div class="alert alert-danger text-center py-2" role="alert">
+        No published blogs available...Please wait admin response
+    </div>
+{% endif %}
+{% endblock %}

@@ -1,0 +1,69 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<div class="row mb-3 text-center">
+    <div class="col">
+        <h2>Admin Blog Management</h2>
+    </div>
+</div>
+
+{% if messages %}
+    {% for message in messages %}
+        <div class="alert {% if message.tags %}alert-{{ message.tags }}{% endif %} alert-dismissible fade show text-center" role="alert">
+            {{ message }}
+        </div>
+    {% endfor %}
+{% endif %}
+
+{% if blogs %}
+    <div class="table-responsive">
+        <table class="table table-striped ">
+            <thead class="table-dark">
+                <tr>
+                    <th>No.</th>
+                    <th>Author</th>
+                    <th>Title</th>
+                    <th>Image</th>
+                    <th>Created Date</th>
+                    <th>Status</th>
+                    <th>Check</th>
+                    <th>Actions</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for blog in blogs %}
+                    <tr>
+                        <td>{{forloop.counter}}</td>
+                        {% if blog.author.first_name or blog.author.last_name %}
+                        <td>{{ blog.author.first_name }} {{ blog.author.last_name }}</td>
+                        {% else %}
+                        <td>Admin</td>
+                        {% endif %}
+                        
+                        <td>{{ blog.name }}</td>
+                        <td><img src="{{blog.photo.url}}" alt="" style="height: 40px; width: 40px; border-radius: 50%;"></td>
+
+                        <td>{{ blog.created_at|date:"Y-m-d" }}</td>
+                        <td>{{ blog.get_status_display }}</td>
+                        <td><a href="{% url 'admin_side:blog_detail' blog.id %}" class="btn btn-success">Detail</a></td>
+                        <td>
+                         
+                                <form method="post" class="d-inline">
+                                    {% csrf_token %}
+                                    <input type="hidden" name="blog_id" value="{{ blog.id }}">
+                                    {{ status_form.action }}
+                                    <button type="submit" class="btn btn-primary btn-sm">Update</button>
+                                </form>
+                               
+                        </td>
+                    </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+{% else %}
+    <div class="alert alert-danger text-center py-2" role="alert">
+        No blogs available.
+    </div>
+{% endif %}
+{% endblock %}

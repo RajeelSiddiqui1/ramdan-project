@@ -1,0 +1,83 @@
+{% extends 'creator_base.html' %}
+
+{% block content %}
+<div class="container my-5">
+    <div class="row text-center my-4">
+        <h1 class="fw-bold text-center">See who’s following your creative journey</h1>
+        
+    </div>
+   
+        {% if followers %}
+        <div class="table-responsive ">
+            <table class="table" style="background: rgba(255, 255, 255, 0.15); backdrop-filter: blur(10px); border: 1px solid rgba(255, 255, 255, 0.2); color: white;">
+                <thead style="background-color:black;">
+                    <tr>
+                        <th style="color: white;">No.</th>
+                        <th style="color: white;">Name</th>
+                        <th style="color: white;">Email</th>
+                        <th style="color: white;">Image</th>
+                        <th style="color: white;">Followed On</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for follow in followers %}
+                    <tr style="border-color: rgba(255, 255, 255, 0.1);">
+                        <td>{{ forloop.counter }}</td>
+                        <td>{{ follow.follower.username }}</td>
+                        <td>{{ follow.follower.email }}</td>
+                        <td>
+                            {% if follow.follower.image %}
+                            <img src="{{ follow.follower.image.url }}" alt="{{ follow.follower.username }}" style="height: 40px; width: 40px; border-radius:50%; background: rgb(8, 7, 7); border: 2px solid rgb(4, 105, 39);">
+                            {% else %}
+                            <div class="rounded-circle d-flex align-items-center justify-content-center" style="height: 40px; width: 40px; background: rgb(8, 7, 7); border: 2px solid rgb(220, 227, 11);">
+                                <span class="text-white" style="font-size: 16px;">{{ follow.follower.username|first }}</span>
+                            </div>
+                            {% endif %}
+                        </td>
+                        <td>{{ follow.created_at|date:"Y-m-d" }}</td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+        {% else %}
+        <div class="alert text-center py-4" style="background: rgba(255, 255, 255, 0.15); backdrop-filter: blur(10px); border: 1px solid rgba(255, 255, 255, 0.2);" role="alert">
+            <p class="text-white">No followers yet. Keep creating to grow your audience!</p>
+        </div>
+        {% endif %}
+    
+</div>
+
+<style>
+body { 
+    background: #E6ECEF; 
+}
+.card { 
+    background: rgba(255, 255, 255, 0.1); 
+    transition: transform 0.3s ease; 
+}
+.card:hover { 
+    transform: translateY(-5px); 
+}
+.text-white { 
+    color: #FFFFFF; 
+}
+.shadow-lg { 
+    box-shadow: 0 10px 20px rgba(0, 0, 0, 0.2); 
+}
+.rounded-3 { 
+    border-radius: 1rem; 
+}
+@media (max-width: 768px) {
+    .table { 
+        font-size: 0.9rem; 
+    }
+    img, .rounded-circle { 
+        height: 30px; 
+        width: 30px; 
+    }
+}
+</style>
+
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/4.1.1/animate.min.css" />
+{% endblock %}

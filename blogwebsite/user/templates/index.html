@@ -1,0 +1,215 @@
+{% extends "layout.html" %}
+
+{% block title %}
+Home Page
+{% endblock %}
+
+{% block content %}
+<div class="container my-5 px-4">
+    <!-- Header -->
+    <header class="text-center my-5 animate__animated animate__fadeInDown">
+        <h1 class="display-4 fw-bold text-dark">Explore Fresh Blogs</h1>
+        <p class="lead text-muted">Discover the latest stories and insights</p>
+    </header>
+
+    <!-- Blog Cards -->
+    <div class="row row-cols-1 row-cols-md-3 g-4">
+        {% for item in blogs|dictsortreversed:"views_count" %}
+        <div class="col animate__animated animate__fadeInUp" style="animation-delay: {{ forloop.counter }};">
+            <article class="card modern-card border-0 rounded-3 overflow-hidden h-100">
+                <div class="image-wrapper position-relative">
+                    <img src="{{ item.photo.url|default:'/static/images/default_blog.jpg' }}" class="card-img-top rounded-top-3" 
+                         alt="{{ item.name }}" style="height: 260px; object-fit: cover; transition: transform 0.4s ease;">
+                    <div class="overlay d-flex justify-content-between align-items-start p-3">
+                        <span class="badge bg-dark text-white px-3 py-2 rounded-pill shadow-sm">
+                            {{ item.category.name|default:"Uncategorized" }}
+                        </span>
+                        <span class="badge bg-primary text-white px-3 py-2 rounded-pill shadow-sm">
+                            <i class="fas fa-eye me-1"></i> {{ item.views_count|default:0 }}
+                        </span>
+                    </div>
+                </div>
+                <div class="card-body p-4">
+                    <h2 class="card-title fw-semibold text-dark mb-3" style="font-size: 1.5rem;">{{ item.name }}</h2>
+                    <p class="card-text text-muted mb-4" style="font-size: 1rem;">{{ item.description|truncatewords:15 }}</p>
+                    <div class="d-flex justify-content-between align-items-center">
+                        <a href="{% url 'detail' item.id %}" class="btn btn-primary btn-sm fw-bold px-4 py-2 rounded-pill">
+                            Read More
+                        </a>
+                        {% if item.views_count > 6 %}
+                        <span class="badge bg-danger px-3 py-2 rounded-pill animate__animated animate__pulse animate__infinite">🔥 Hot</span>
+                        {% elif item.views_count >= 6 %}
+                        <span class="badge bg-warning px-3 py-2 rounded-pill animate__animated animate__bounceIn">⭐ Trending</span>
+                        {% else %}
+                        <span class="badge bg-info px-3 py-2 rounded-pill">✨ Fresh</span>
+                        {% endif %}
+                    </div>
+                </div>
+                <footer class="card-footer bg-transparent border-top-0 p-4 pt-0">
+                    <div class="author d-flex align-items-center">
+                        {% if item.author.first_name or item.author.last_name %}
+                        <img src="{{ item.author.photo.url|default:'https://img.freepik.com/free-vector/follow-me-social-business-theme-design_24877-52233.jpg?t=st=1741201126~exp=1741204726~hmac=002836758f399672fe26032a84f72804a610f6e0b79b08ae7a4b71bd39de9738&w=740' }}" class="author-img me-3" 
+                             alt="{{ item.author.first_name }} {{ item.author.last_name }}">
+                        <p class="text-dark m-0 fw-medium">By 
+                            <a href="{% url 'creator_profile' item.author.id %}" class="text-primary hover-link">
+                                {{ item.author.first_name }} {{ item.author.last_name }}
+                            </a>
+                        </p>
+                        {% else %}
+                        <img src="/static/images/default_author.jpg" class="author-img me-3" alt="Admin">
+                        <p class="text-dark m-0 fw-medium">By <span class="text-primary">Admin</span></p>
+                        {% endif %}
+                    </div>
+                </footer>
+            </article>
+        </div>
+        {% empty %}
+        <div class="col-12 text-center justify-content-center">
+            <div class="alert alert-info rounded-3 shadow-sm animate__animated animate__fadeIn">
+                No blogs found in this category. Try another one!
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+</div>
+
+<!-- Custom Styling -->
+<style>
+body { 
+    background: #F8F9FA; 
+    font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Arial, sans-serif; 
+    color: #212529;
+}
+.container {
+    max-width: 1200px;
+}
+.modern-card { 
+    background: #FFFFFF; 
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.05), 0 1px 3px rgba(0, 0, 0, 0.1); 
+    transition: transform 0.3s ease, box-shadow 0.3s ease; 
+}
+.modern-card:hover { 
+    transform: translateY(-6px); 
+    box-shadow: 0 10px 15px rgba(0, 0, 0, 0.1), 0 4px 6px rgba(0, 0, 0, 0.05); 
+}
+.image-wrapper {
+    overflow: hidden;
+    position: relative;
+}
+.card-img-top {
+    border-bottom: 1px solid #E9ECEF;
+}
+.card-img-top:hover { 
+    transform: scale(1.08); 
+}
+.overlay {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: linear-gradient(to bottom, rgba(0, 0, 0, 0.2), transparent 50%);
+    pointer-events: none;
+}
+.overlay .badge {
+    pointer-events: auto;
+}
+.card-title { 
+    line-height: 1.3; 
+}
+.text-dark { 
+    color: #212529; 
+}
+.text-muted { 
+    color: #6C757D; 
+}
+.text-primary { 
+    color: #0D6EFD; 
+}
+.bg-dark { 
+    background: #343A40; 
+}
+.bg-primary { 
+    background: #0D6EFD; 
+}
+.btn-primary { 
+    background: #0D6EFD; 
+    border: none; 
+    transition: all 0.3s ease; 
+}
+.btn-primary:hover { 
+    background: #0a58ca; 
+    transform: scale(1.05); 
+}
+.bg-danger { 
+    background: #DC3545; 
+}
+.bg-warning { 
+    background: #FFC107; 
+}
+.bg-info { 
+    background: #17A2B8; 
+}
+.rounded-3 { 
+    border-radius: 0.75rem !important; 
+}
+.rounded-top-3 {
+    border-top-left-radius: 0.75rem !important;
+    border-top-right-radius: 0.75rem !important;
+}
+.rounded-pill { 
+    border-radius: 50rem; 
+}
+.badge { 
+    font-size: 0.85rem; 
+    font-weight: 600; 
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+.author-img { 
+    height: 44px; 
+    width: 44px; 
+    border-radius: 50%; 
+    border: 2px solid #E9ECEF; 
+    object-fit: cover; 
+    transition: transform 0.2s ease; 
+}
+.author-img:hover { 
+    transform: scale(1.1); 
+}
+.hover-link { 
+    text-decoration: none; 
+    transition: color 0.2s ease; 
+}
+.hover-link:hover { 
+    color: #0a58ca; 
+    text-decoration: underline; 
+}
+.alert-info {
+    background: #CCE5FF;
+    color: #004085;
+    border: none;
+}
+.h-100 {
+    height: 100%;
+}
+@media (max-width: 768px) { 
+    .card-img-top { 
+        height: 200px; 
+    } 
+    .display-4 { 
+        font-size: 2rem; 
+    } 
+    .btn-sm { 
+        padding: 0.35rem 1rem; 
+    } 
+    .author-img { 
+        height: 36px; 
+        width: 36px; 
+    } 
+}
+</style>
+
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/4.1.1/animate.min.css" />
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css" />
+{% endblock %}

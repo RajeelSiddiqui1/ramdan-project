@@ -1,0 +1,388 @@
+{% extends "layout.html" %}
+
+{% block title %}
+{{ creator.first_name }} {{ creator.last_name }}'s Profile
+{% endblock %}
+
+{% block content %}
+<div class="container my-5 px-4">
+    <!-- Consolidated Messages Section -->
+    {% if messages %}
+    <div class="row my-4 justify-content-center">
+        <div class="col-md-8">
+            {% for message in messages %}
+            <div class="alert alert-{{ message.tags }} alert-dismissible fade show rounded-3 shadow-sm animate__animated animate__fadeIn" role="alert">
+                <span>{{ message }}</span>
+                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+            </div>
+            {% endfor %}
+        </div>
+    </div>
+    {% endif %}
+
+    <div class="card border-0 rounded-3 shadow-sm mb-5 animate__animated animate__fadeIn">
+        <div class="position-relative">
+            {% if creator.background_photo %}
+            <img src="{{ creator.background_photo.url }}" class="w-100 rounded-top-3" style="height: 280px; object-fit: cover; filter: brightness(0.9);" alt="Background">
+            {% else %}
+            <div class="w-100 rounded-top-3" style="height: 280px; background: linear-gradient(135deg, #0D6EFD, #17A2B8);"></div>
+            {% endif %}
+            <div class="position-absolute" style="bottom: -80px; left: 40px;">
+                {% if creator.photo %}
+                <img src="{{ creator.photo.url }}" class="rounded-circle border border-4 border-white shadow-lg profile-avatar" style="width: 160px; height: 160px; object-fit: cover;" alt="Profile">
+                {% else %}
+                <div class="rounded-circle border border-4 border-white shadow-lg d-flex align-items-center justify-content-center profile-avatar" style="width: 160px; height: 160px; background: #E9ECEF;">
+                    <span class="text-dark fw-bold" style="font-size: 56px;">{{ creator.first_name|first }}{{ creator.last_name|first }}</span>
+                </div>
+                {% endif %}
+            </div>
+        </div>
+        <div class="card-body pt-5 mt-4 px-5 pb-4">
+            <div class="row align-items-center">
+                <div class="col-md-8">
+                    <h2 class="fw-bold text-dark mb-2">{{ creator.first_name }} {{ creator.last_name }}</h2>
+                    <p class="text-muted mb-3" style="font-size: 1.1rem;">{{ creator.bio }}</p>
+                    <div class="d-flex flex-wrap gap-4 text-secondary">
+                        <span><i class="fas fa-map-marker-alt mr-1"></i> {{ creator.country }}</span>
+                        <span><i class="fas fa-graduation-cap mr-1"></i> {{ creator.education }}</span>
+                        <span><i class="fas fa-envelope mr-1"></i> {{ creator.email }}</span>
+                    </div>
+                </div>
+                <div class="col-md-4 text-md-end mt-3 mt-md-0">
+                    {% if user.is_authenticated and user.id != creator.id %}
+                    <form method="POST" action="{% url 'toggle_follow' creator.id %}" class="follow-form d-inline">
+                        {% csrf_token %}
+                        {% if is_following %}
+                        <button type="submit" class="btn btn-outline-danger follow-btn px-4 py-2 rounded-pill fw-medium" data-creator-id="{{ creator.id }}">
+                            <i class="fas fa-user-minus mr-1"></i> Unfollow
+                        </button>
+                        {% else %}
+                        <button type="submit" class="btn btn-outline-primary follow-btn px-4 py-2 rounded-pill fw-medium" data-creator-id="{{ creator.id }}">
+                            <i class="fas fa-user-plus mr-1"></i> Follow
+                        </button>
+                        {% endif %}
+                    </form>
+                    {% endif %}
+                    <div class="mt-3 text-muted">
+                        <span class="followers-count fw-medium">{{ followers_count }}</span> Followers • <span class="fw-medium">{{ blog_count }}</span> Blogs
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="mt-5">
+        <h3 class="mb-4 fw-bold text-dark">Recent Blogs</h3>
+        {% if blogs %}
+        <div class="row row-cols-1 row-cols-md-3 g-4">
+            {% for item in blogs|dictsortreversed:"views_count" %}
+            <div class="col animate__animated animate__fadeInUp" style="animation-delay: {{ forloop.counter}}s;">
+                <div class="card border-0 rounded-3 shadow-sm overflow-hidden modern-card">
+                    <div class="image-wrapper position-relative">
+                        <img src="{{ item.photo.url }}" class="card-img-top rounded-3" alt="{{ item.name }}" style="height: 220px; object-fit: cover; transition: transform 0.4s ease;">
+                        <div class="overlay d-flex justify-content-between align-items-start p-3">
+                            <span class="badge bg-dark text-white px-3 py-2 rounded-pill shadow-sm">
+                                {{ item.category.name }}
+                            </span>
+                            <span class="badge bg-primary text-white px-3 py-2 rounded-pill shadow-sm">
+                                <i class="fas fa-eye mr-1"></i> {{ item.views_count }}
+                            </span>
+                        </div>
+                    </div>
+                    <div class="card-body p-4">
+                        <h5 class="card-title fw-semibold text-dark mb-3" style="font-size: 1.25rem;">{{ item.name }}</h5>
+                        <p class="card-text text-muted mb-4" style="font-size: 0.95rem;">{{ item.description | truncatewords:15 }}</p>
+                        <div class="d-flex justify-content-between align-items-center">
+                            <a href="{% url 'detail' item.id %}" class="btn btn-primary btn-sm fw-medium px-4 py-2 rounded-pill">
+                                Read More
+                            </a>
+                            {% if item.views_count > 6 %}
+                            <span class="badge bg-danger px-3 py-2 rounded-pill animate__animated animate__pulse animate__infinite">🔥 Hot</span>
+                            {% elif item.views_count >= 6 %}
+                            <span class="badge bg-warning px-3 py-2 rounded-pill animate__animated animate__bounceIn">⭐ Trending</span>
+                            {% else %}
+                            <span class="badge bg-info px-3 py-2 rounded-pill">✨ Fresh</span>
+                            {% endif %}
+                        </div>
+                    </div>
+                    <div class="card-footer bg-transparent border-top-0 p-4 pt-0">
+                        <div class="author d-flex align-items-center">
+                            {% if item.author.first_name or item.author.last_name %}
+                            <img src="{{ item.author.photo.url }}" class="author-img mr-3" alt="{{ item.author.first_name }} {{ item.author.last_name }}">
+                            <p class="text-dark m-0 fw-medium">By <a href="{% url 'creator_profile' item.author.id %}" class="text-primary hover-link">{{ item.author.first_name }} {{ item.author.last_name }}</a></p>
+                            {% else %}
+                            <img src="https://img.freepik.com/free-vector/follow-me-social-business-theme-design_24877-52233.jpg?t=st=1741201126~exp=1741204726~hmac=002836758f399672fe26032a84f72804a610f6e0b79b08ae7a4b71bd39de9738&w=740" class="author-img mr-3" alt="Admin">
+                            <p class="text-dark m-0 fw-medium">By <span class="text-primary">Admin</span></p>
+                            {% endif %}
+                        </div>
+                    </div>
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+        {% else %}
+        <div class="alert alert-info rounded-3 shadow-sm text-center">No blogs published yet.</div>
+        {% endif %}
+    </div>
+</div>
+
+<style>
+body { 
+    background: #F8F9FA; 
+    font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Arial, sans-serif; 
+    color: #212529;
+}
+.container {
+    max-width: 1200px;
+}
+.card { 
+    background: #FFFFFF; 
+    transition: transform 0.3s ease, box-shadow 0.3s ease; 
+}
+.card:hover { 
+    transform: translateY(-6px); 
+    box-shadow: 0 10px 15px rgba(0, 0, 0, 0.1); 
+}
+.modern-card { 
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.05); 
+}
+.image-wrapper { 
+    overflow: hidden; 
+    position: relative; 
+}
+.card-img-top:hover { 
+    transform: scale(1.08); 
+}
+.overlay { 
+    position: absolute; 
+    top: 0; 
+    left: 0; 
+    width: 100%; 
+    height: 100%; 
+    background: linear-gradient(to bottom, rgba(0, 0, 0, 0.2), transparent 50%); 
+    pointer-events: none; 
+}
+.overlay .badge { 
+    pointer-events: auto; 
+}
+.profile-avatar { 
+    transition: transform 0.3s ease; 
+}
+.profile-avatar:hover { 
+    transform: scale(1.05); 
+}
+.text-dark { 
+    color: #212529; 
+}
+.text-muted { 
+    color: #6C757D; 
+}
+.text-secondary { 
+    color: #6C757D; 
+}
+.text-primary { 
+    color: #0D6EFD; 
+}
+.bg-dark { 
+    background: #343A40; 
+}
+.bg-primary { 
+    background: #0D6EFD; 
+}
+.btn-primary { 
+    background: #0D6EFD; 
+    border: none; 
+    transition: all 0.3s ease; 
+}
+.btn-primary:hover { 
+    background: #0a58ca; 
+    transform: scale(1.05); 
+}
+.btn-outline-primary { 
+    border: 2px solid #0D6EFD; 
+    color: #0D6EFD; 
+    transition: all 0.3s ease; 
+}
+.btn-outline-primary:hover { 
+    background: #0D6EFD; 
+    color: #FFFFFF; 
+}
+.btn-outline-danger { 
+    border: 2px solid #DC3545; 
+    color: #DC3545; 
+    transition: all 0.3s ease; 
+}
+.btn-outline-danger:hover { 
+    background: #DC3545; 
+    color: #FFFFFF; 
+}
+.alert-success { 
+    background: #D4EDDA; 
+    color: #155724; 
+    border: none; 
+}
+.bg-danger { 
+    background: #DC3545; 
+}
+.bg-warning { 
+    background: #FFC107; 
+}
+.bg-info { 
+    background: #17A2B8; 
+}
+.rounded-3 { 
+    border-radius: 0.75rem !important; 
+}
+.rounded-pill { 
+    border-radius: 50rem; 
+}
+.alert-info { 
+    background: #E9ECEF; 
+    color: #212529; 
+    border: none; 
+}
+.badge { 
+    font-size: 0.85rem; 
+    font-weight: 600; 
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1); 
+}
+.author { 
+    padding: 10px 0; 
+}
+.author-img { 
+    height: 44px; 
+    width: 44px; 
+    border-radius: 50%; 
+    border: 2px solid #E9ECEF; 
+    object-fit: cover; 
+    transition: transform 0.2s ease; 
+}
+.author-img:hover { 
+    transform: scale(1.1); 
+}
+.hover-link { 
+    text-decoration: none; 
+    transition: color 0.2s ease; 
+}
+.hover-link:hover { 
+    color: #0a58ca; 
+    text-decoration: underline; 
+}
+.shadow-sm { 
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05); 
+}
+@media (max-width: 768px) { 
+    .card-body { 
+        padding: 1.5rem; 
+    } 
+    .card-img-top { 
+        height: 180px; 
+    } 
+    .profile-avatar { 
+        width: 120px; 
+        height: 120px; 
+    } 
+    .profile-avatar + h2 { 
+        font-size: 1.75rem; 
+    } 
+    .follow-btn { 
+        width: 100%; 
+    } 
+    .overlay { 
+        padding: 2rem; 
+    } 
+}
+</style>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const followForm = document.querySelector('.follow-form');
+    if (followForm) {
+        followForm.addEventListener('submit', function(e) {
+            e.preventDefault();
+            const btn = this.querySelector('.follow-btn');
+            fetch(this.action, {
+                method: 'POST',
+                headers: {
+                    'X-Requested-With': 'XMLHttpRequest',
+                    'X-CSRFToken': this.querySelector('[name=csrfmiddlewaretoken]').value
+                },
+                body: new FormData(this)
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.is_following) {
+                    btn.classList.remove('btn-outline-primary');
+                    btn.classList.add('btn-outline-danger');
+                    btn.innerHTML = '<i class="fas fa-user-minus mr-1"></i> Unfollow';
+                } else {
+                    btn.classList.remove('btn-outline-danger');
+                    btn.classList.add('btn-outline-primary');
+                    btn.innerHTML = '<i class="fas fa-user-plus mr-1"></i> Follow';
+                }
+                document.querySelector('.followers-count').textContent = data.followers_count;
+            })
+            .catch(error => console.error('Error:', error));
+        });
+    }
+});
+
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        const followForm = document.querySelector('.follow-form');
+        if (followForm) {
+            followForm.addEventListener('submit', function(e) {
+                e.preventDefault();
+                const btn = this.querySelector('.follow-btn');
+                fetch(this.action, {
+                    method: 'POST',
+                    headers: {
+                        'X-Requested-With': 'XMLHttpRequest',
+                        'X-CSRFToken': this.querySelector('[name=csrfmiddlewaretoken]').value
+                    },
+                    body: new FormData(this)
+                })
+                .then(response => response.json())
+                .then(data => {
+                    if (data.is_following) {
+                        btn.classList.remove('btn-outline-primary');
+                        btn.classList.add('btn-outline-danger');
+                        btn.innerHTML = '<i class="fas fa-user-minus mr-1"></i> Unfollow';
+                        showMessage('success', `You are now following ${data.creator_name || 'this creator'}`);
+                    } else {
+                        btn.classList.remove('btn-outline-danger');
+                        btn.classList.add('btn-outline-primary');
+                        btn.innerHTML = '<i class="fas fa-user-plus mr-1"></i> Follow';
+                        showMessage('success', `You have unfollowed ${data.creator_name || 'this creator'}`);
+                    }
+                    document.querySelector('.followers-count').textContent = data.followers_count;
+                })
+                .catch(error => console.error('Error:', error));
+            });
+        }
+    
+        function showMessage(type, text) {
+            const messageContainer = document.createElement('div');
+            messageContainer.className = `alert alert-${type} alert-dismissible fade show rounded-3 shadow-sm animate__animated animate__fadeIn`;
+            messageContainer.role = 'alert';
+            messageContainer.innerHTML = `
+                <span>${text}</span>
+                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+            `;
+            const messagesRow = document.querySelector('.row.my-4') || document.createElement('div');
+            if (!messagesRow.classList.contains('row')) {
+                messagesRow.className = 'row my-4 justify-content-center';
+                document.querySelector('.container').prepend(messagesRow);
+            }
+            messagesRow.innerHTML = ''; // Clear existing messages
+            messagesRow.appendChild(messageContainer);
+            setTimeout(() => messageContainer.classList.remove('show'), 5000); // Auto-dismiss after 5s
+        }
+    });
+    </script>
+</script>
+
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/4.1.1/animate.min.css" />
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css" />
+{% endblock %}
