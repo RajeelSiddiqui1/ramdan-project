@@ -16,4 +16,8 @@ urlpatterns = [
     path('creator_list/', views.creator_list, name='creator_list'),
     path('about_us/', views.about_us, name='about_us'),
     path('contact_us/', views.contact_us, name='contact_us'),
+    path('contact_us_list/', views.contact_us_list, name='contact_us_list'),
+    path('contact_us_delete/<int:contact_id>', views.contact_us_delete, name='contact_us_delete'),
+    path('following/', views.following_list, name='following_list'),
+    path('unfollow/<int:creator_id>/', views.unfollow_creator, name='unfollow_creator'),
 ]

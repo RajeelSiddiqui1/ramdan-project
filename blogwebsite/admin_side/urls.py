@@ -43,5 +43,6 @@ urlpatterns = [
 
     
     path('creator_list/', views.creator_list, name='creator_list'),
+    path('contact_us_status/', views.contact_us_status, name='contact_us_status'),
    
 ]

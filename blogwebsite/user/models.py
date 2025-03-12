@@ -110,13 +110,14 @@ class Follow(models.Model):
 class ContactUs(models.Model):
      STATUS_CHOICES = (
         ('pending', 'Pending'),
-        ('approved', 'Approved'),
+        ('working', 'working'),
+        ('complete', 'complete'),
     )
      email = models.EmailField(max_length=100)
      phone_number = models.CharField(max_length=13)
      issue = models.CharField(max_length=100)
      problem = models.CharField(max_length=255)
-     user = models.ForeignKey(SimpleUser,on_delete=models.CASCADE,name='user')
+     user = models.ForeignKey(SimpleUser,on_delete=models.CASCADE)
      status = models.CharField(max_length=20, choices=STATUS_CHOICES, default='pending')
      created_at = models.DateTimeField(auto_now_add=True)
      updated_at = models.DateTimeField(auto_now=True)

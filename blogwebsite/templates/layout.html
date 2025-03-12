@@ -252,12 +252,27 @@
                             <li><a class="dropdown-item" href="#">Something else here</a></li>
                         </ul>
                     </li>
-                    <li class="nav-item">
-                        <a class="nav-link" href="{% url 'about_us' %}">About Us</a>
+                    <li class="nav-item dropdown">
+                        <a class="nav-link dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+                            More Links
+                        </a>
+                        <ul class="dropdown-menu  p-3">
+                                <li class="nav-item">
+                                    <a class="nav-link" href="{% url 'about_us' %}">About Us</a>
+                                </li>
+                                <li class="nav-item">
+                                    <a class="nav-link" href="{% url 'contact_us' %}">Contact Us</a>
+                                </li>
+                                <li class="nav-item">
+                                    <a class="nav-link" href="{% url 'contact_us_list' %}">Contact List</a>
+                                </li>
+                                <li class="nav-item">
+                                    <a class="nav-link" href="{% url 'following_list' %}">Following List</a>
+                                </li>
+                            </li>
+                        </ul>
                     </li>
-                    <li class="nav-item">
-                        <a class="nav-link" href="{% url 'contact_us' %}">Contact Us</a>
-                    </li>
+                   
                 </ul>
 
                 <!-- Right-Aligned Navigation Items -->

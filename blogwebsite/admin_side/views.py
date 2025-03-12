@@ -5,8 +5,9 @@ from django.contrib.auth.hashers import check_password
 from django.contrib import messages
 from django.core.paginator import Paginator
 from .forms import LoginForm, StaffForm, StaffEditForm,CategoryForm,BlogForm,BlogStatusForm,BlogCountryForm
+from user.forms import ContactUsForm
 from .models import Admin, Staff, BlogCountry
-from user.models import Categories,Blog,SimpleUser, Creator
+from user.models import Categories,Blog,SimpleUser, Creator, ContactUs
 
 def dashboard(request):
     # Redirect to admin_login if neither admin nor staff is logged in
@@ -311,3 +312,28 @@ def country_delete(request, con_id):
 def creator_list(request):
     cat = Creator.objects.all()
     return render(request,'creator_list.html',{'cat':cat})
+
+
+def contact_us_status(request):
+    contacts = ContactUs.objects.all()
+
+    if request.method == "POST":
+        contact_id = request.POST.get('contact_id')
+        action = request.POST.get('action')
+
+        if not contact_id:
+            messages.error(request, 'No contact request selected')
+            return redirect('admin_side:contact_us_status')
+
+        contact = get_object_or_404(ContactUs, pk=contact_id)
+        if action in ['Pending', 'Working', 'Complete']:  # Validate the action
+            contact.status = action
+            contact.save()
+            messages.success(request, f'Contact request status updated to {action}')
+        else:
+            messages.error(request, 'Invalid status selected')
+        return redirect('admin_side:contact_us_status')
+
+    return render(request, 'contact_us_status.html', {
+        'contact': contacts,
+    })

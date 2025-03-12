@@ -93,8 +93,14 @@
       </li>
 
       <li>
-        <a href="{% url 'admin_side:user_list'  %}" target="_blank">
+        <a href="{% url 'admin_side:user_list'  %}">
           <i class="zmdi zmdi-lock"></i> <span>Users List</span>
+        </a>
+      </li>
+
+      <li>
+        <a href="{% url 'admin_side:contact_us_status'  %}" >
+          <i class="zmdi zmdi-lock"></i> <span>Contact Us Status</span>
         </a>
       </li>
 
@@ -532,6 +538,8 @@
 
   <!-- Index JS -->
   <script src="{% static 'admin_side/js/index.js' %}"></script>
-  
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/4.1.1/animate.min.css" />
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css" />
 </body>
 </html>

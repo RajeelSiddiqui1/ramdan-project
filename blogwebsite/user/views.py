@@ -6,9 +6,10 @@ from django.http import JsonResponse
 from django.contrib.auth.hashers import check_password
 from django.contrib import messages
 from django.contrib.auth.decorators import login_required
-from .models import Blog, BlogRead, Creator, Follow, Categories
+from .models import Blog, BlogRead, Creator, Follow, Categories, ContactUs, SimpleUser
 from django.db.models import Q,F
 from admin_side.models import BlogCountry
+from django.http import HttpResponse
 
 def register(request):
     if request.method == 'POST':
@@ -275,3 +276,34 @@ def contact_us(request):
         form = ContactUsForm()    
 
     return render(request,'contact_us.html',{'form':form})
+
+
+
+
+@login_required
+def contact_us_list(request):
+    contact = ContactUs.objects.filter(user=request.user)
+    return render(request, 'contact_us_list.html', {'contact': contact})
+
+
+@login_required
+def contact_us_delete(request, contact_id):
+    contact = get_object_or_404(ContactUs, pk=contact_id)
+    if request.method == "POST":
+        contact.delete()
+        messages.success(request, 'Contact problem was deleted successfully')
+        return redirect('contact_us_list')
+    return render(request,'contact_confirm_delete.html',{'contact':contact})
+
+
+@login_required
+def following_list(request):
+    following = Follow.objects.filter(follower=request.user).select_related('following')
+    return render(request, 'following_list.html',{'following':following})
+
+@login_required
+def unfollow_creator(request,creator_id):
+    creator = get_object_or_404(Creator, id=creator_id)
+    Follow.objects.filter(follower=request.user, following_id=creator_id).delete()
+    messages.success(request, f'You unfollow {creator.first_name}{creator.last_name} ')
+    return redirect('following_list')

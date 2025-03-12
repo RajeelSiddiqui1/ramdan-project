@@ -1,0 +1,159 @@
+{% extends "layout.html" %}
+
+{% block title %}
+Contact Us List
+{% endblock %}
+
+{% block content %}
+<!-- Header Section -->
+<section class="header-section py-4">
+    <div class="container text-center">
+        <h1 class="display-5 fw-bold text-dark mb-2">Your Contact Requests</h1>
+        <p class="text-muted mb-4">Manage your submitted issues efficiently.</p>
+    </div>
+</section>
+
+<!-- Messages -->
+{% if messages %}
+<div class="container mb-4">
+    <div class="row justify-content-center">
+        <div class="col-md-8">
+            {% for message in messages %}
+            <div class="alert alert-{{ message.tags }} alert-dismissible fade show rounded shadow-sm" role="alert">
+                {{ message }}
+                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+            </div>
+            {% endfor %}
+        </div>
+    </div>
+</div>
+{% endif %}
+
+<!-- Contact Us Table Section -->
+<section class="table-section py-4 bg-light">
+    <div class="container">
+        <div class="card border-0 rounded-3 shadow-sm">
+            <div class="card-body p-0">
+                <table class="table table-hover mb-0">
+                    <thead class="bg-primary text-white">
+                        <tr>
+                            <th scope="col" class="py-3 ps-3">No</th>
+                            <th scope="col" class="py-3">Issue</th>
+                            <th scope="col" class="py-3">Problem</th>
+                            <th scope="col" class="py-3">Created At</th>
+                            <th scope="col" class="py-3">Status</th>
+                            <th scope="col" class="py-3 pe-3">Delete</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for item in contact %}
+                        <tr>
+                            <td class="ps-3">{{ item.id }}</td>
+                            <td>{{ item.issue }}</td>
+                            <td>{{ item.problem }}</td>
+                            <td>{{ item.created_at|date:"M d, Y" }}</td>
+                            <td>
+                                <span class="badge status-badge {{ item.status|lower }}">{{ item.status }}</span>
+                            </td>
+                            <td>
+                                <a href="{% url 'contact_us_delete' item.id %}" class="btn btn-sm btn-danger">Delete</a>
+                            </td>
+                        </tr>
+                        {% empty %}
+                        <tr>
+                            <td colspan="6" class="text-center py-4 text-muted">
+                                <i class="fas fa-info-circle me-2"></i> No requests submitted yet.
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- Custom Styling -->
+<style>
+    body {
+        font-family: 'Inter', sans-serif;
+        background: #F8F9FA;
+        color: #212529;
+    }
+    .container {
+        max-width: 1140px;
+    }
+
+    /* Header Section */
+    .header-section {
+        padding: 3rem 0 2rem;
+    }
+    .header-section h1 {
+        font-size: 2.5rem;
+        font-weight: 700;
+    }
+    .header-section p {
+        font-size: 1.1rem;
+    }
+
+    /* Table Section */
+    .table-section {
+        padding: 3rem 0;
+    }
+    .card {
+        background: #fff;
+        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+    }
+    .table thead th {
+        font-weight: 600;
+        background: #0d6efd;
+        border: none;
+    }
+    .table td, .table th {
+        padding: 1rem;
+        vertical-align: middle;
+        border: none;
+    }
+    .table tbody tr:hover {
+        background-color: #f5f6f8;
+    }
+
+    /* Status Badges */
+    .status-badge {
+        padding: 0.35rem 0.75rem;
+        border-radius: 12px;
+        font-weight: 500;
+        color: #fff;
+    }
+    .status-badge.working {
+        background: #0d6efd;
+    }
+    .status-badge.complete {
+        background: #28a745;
+    }
+    .status-badge.default {
+        background: #6c757d;
+    }
+
+    /* Responsive Design */
+    @media (max-width: 768px) {
+        .header-section h1 {
+            font-size: 1.75rem;
+        }
+        .header-section p {
+            font-size: 0.95rem;
+        }
+        .table td, .table th {
+            padding: 0.75rem;
+            font-size: 0.9rem;
+        }
+        .btn-sm {
+            padding: 0.25rem 0.5rem;
+        }
+    }
+</style>
+
+<!-- External Dependencies -->
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css" />
+{% endblock %}

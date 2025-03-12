@@ -1,0 +1,102 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<div class="row mb-3 text-center">
+    <div class="col">
+        <h2>Contact Us Management</h2>
+    </div>
+</div>
+
+{% if messages %}
+<div class="row justify-content-center mb-4">
+    <div class="col-md-8">
+        {% for message in messages %}
+        <div class="alert alert-{{ message.tags }} alert-dismissible fade show rounded-3 shadow-sm animate__animated animate__fadeIn" role="alert">
+            <span>{{ message }}</span>
+            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+        </div>
+        {% endfor %}
+    </div>
+</div>
+{% endif %}
+
+{% if contact %}
+    <div class="table-responsive">
+        <table class="table table-striped">
+            <thead class="table-dark">
+                <tr>
+                    <th scope="col" class="py-3 ps-4 rounded-start">No</th>
+                    <th scope="col" class="py-3">User</th>
+                    <th scope="col" class="py-3">Email</th>
+                    <th scope="col" class="py-3">Issue</th>
+                    <th scope="col" class="py-3">Problem</th>
+                    <th scope="col" class="py-3">Created At</th>
+                    <th scope="col" class="py-3">Status</th>
+                    <th scope="col" class="py-3 rounded-end">Update</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for item in contact %}
+                    <tr>
+                        <td class="ps-4">{{ forloop.counter }}</td>
+                        <td>{{ item.user.username }}</td>
+                        <td>{{ item.email }}</td>
+                        <td>{{ item.issue }}</td>
+                        <td>{{ item.problem }}</td>
+                        <td>{{ item.created_at|date:"M d, Y" }}</td>
+                        <td>
+                            <span class="badge status-badge {% if item.status == 'Working' %}working-badge{% elif item.status == 'Complete' %}complete-badge{% else %}default-badge{% endif %}">
+                                {{ item.status }}
+                            </span>
+                        </td>
+                        <td>
+                            <form method="POST" action="{% url 'admin_side:contact_us_status' %}" class="d-inline">
+                                {% csrf_token %}
+                                <input type="hidden" name="contact_id" value="{{ item.id }}">
+                                <select name="action" class="form-select form-select-sm">
+                                    <option value="Pending" {% if item.status == 'Pending' %}selected{% endif %}
+                                    class="text-white">Pending</option>
+                                    <option value="Working" {% if item.status == 'Working' %}selected{% endif %} class="text-white">Working</option>
+                                    <option value="Complete" {% if item.status == 'Complete' %}selected{% endif %} class="text-white">Complete</option>
+                                </select>
+                                <button type="submit" class="btn btn-primary btn-sm ms-2">Update</button>
+                            </form>
+                        </td>
+                    </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+{% else %}
+    <div class="alert alert-danger text-center py-2" role="alert">
+        No contact requests available.
+    </div>
+{% endif %}
+
+<style>
+    .status-badge {
+        font-size: 0.85rem;
+        padding: 0.4rem 0.8rem;
+        border-radius: 20px;
+    }
+    .working-badge {
+        background: #0d6efd; /* Primary blue */
+        color: #fff;
+    }
+    .complete-badge {
+        background: #28a745; /* Green */
+        color: #fff;
+    }
+    .default-badge {
+        background: #6c757d; /* Gray */
+        color: #fff;
+    }
+    .form-select-sm {
+        padding: 0.25rem 0.5rem;
+        font-size: 0.875rem;
+        width: auto;
+        display: inline-block;
+    }
+
+</style>
+{% endblock %}
