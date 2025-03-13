@@ -16,4 +16,5 @@ urlpatterns = [
     path('blogs/<int:blog_id>/views/', views.blog_views_check, name='blog_views_check'),
     path('stories/', views.creator_story_list, name='stories'),
     path('stories/create/', views.create_story, name='create_story'),
+    path('creator/profile/edit/<int:creator_id>', views.creator_profile_edit, name='creator_profile_edit'),
 ]

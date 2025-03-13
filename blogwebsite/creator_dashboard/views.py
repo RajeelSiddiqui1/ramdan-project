@@ -4,28 +4,38 @@ from django.contrib import messages
 from user.models import Creator, Blog, BlogRead, Follow
 from user.forms import COUNTRIES
 from django.contrib.auth.hashers import check_password
-from .forms import CreatorLoginForm, BlogForm, StoryForm
+from .forms import CreatorLoginForm, BlogForm, StoryForm, CreatorForm
 from django.contrib.auth.decorators import login_required
 from django.shortcuts import get_object_or_404
 from .models import Story
 
 
 def dashboard(request):
-    if not request.session.get('creator_logged_in') or not request.session.get('creator_id'):
+    creator_id = request.session.get('creator_id')
+    if not request.session.get('creator_logged_in') or not creator_id:
         messages.warning(request, 'Your session has expired. Please login again.')
         return redirect('creator_dashboard:creator_login')
-    
-    creator = Creator.objects.get(id=request.session.get('creator_id'))
+
+    creator = get_object_or_404(Creator, id=creator_id)
+
     blogs = Blog.objects.filter(author=creator, status='approved', is_deleted=False)
+
+   
     context = {
         'creator': creator,
         'blogs': blogs,
         'title': 'Creator Dashboard',
         'creator_name': request.session.get('creator_name', 'Creator'),
+        'creator_id': creator_id,  
     }
     return render(request, 'creator_dashboard.html', context)
 
+
 def creator_login(request):
+    if request.session.get('creator_logged_in') and request.session.get('creator_id'):
+        messages.info(request, 'You are already logged in!')
+        return redirect('creator_dashboard:dashboard')
+    
     if request.method == 'POST':
         form = CreatorLoginForm(request.POST)
         if form.is_valid():
@@ -50,6 +60,36 @@ def creator_login(request):
         'title': 'Creator Login'
     }
     return render(request, 'creator_login.html', context)
+
+
+def creator_profile_edit(request, creator_id):
+    if not request.session.get('creator_logged_in') or not request.session.get('creator_id'):
+        messages.warning(request, 'Your session has expired. Please login again.')
+        return redirect('creator_dashboard:creator_login')
+    
+    try:
+        creator = Creator.objects.get(id=request.session.get('creator_id'))
+    except Creator.DoesNotExist:
+        messages.error(request, 'Creator not found.')
+        return redirect('creator_dashboard:creator_login')
+
+    # Ensure user can only edit their own profile
+    if str(creator.id) != str(creator_id):
+        messages.error(request, 'You can only edit your own profile.')
+        return redirect('creator_dashboard:dashboard')
+
+    if request.method == "POST":
+        form = CreatorForm(request.POST, request.FILES, instance=creator)
+        if form.is_valid():
+            form.save()
+            messages.success(request, 'Profile has been updated successfully')
+            return redirect('creator_dashboard:dashboard')
+    else:
+        form = CreatorForm(instance=creator)
+    
+    return render(request, 'edit_creator_profile.html', {'form': form})
+         
+
 
 def creator_logout(request):
     if 'creator_logged_in' in request.session:

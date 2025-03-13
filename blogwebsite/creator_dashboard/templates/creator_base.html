@@ -50,43 +50,36 @@
       <li class="sidebar-header">MAIN NAVIGATION</li>
       <li>
         <a href="{% url 'creator_dashboard:dashboard' %}">
-          <i class="zmdi zmdi-view-dashboard"></i> <span>Dashboard</span>
+            <i class="zmdi zmdi-view-dashboard"></i> <span>Dashboard</span>
         </a>
-      </li>
-
-      {% comment %} <li>
+    </li>
+    
+    {% comment %}
+    <li>
         <a href="{% url 'index' %}">
-            <i class="zmdi zmdi-labels"></i> <span>Home</span>
+            <i class="zmdi zmdi-home"></i> <span>Home</span>
         </a>
-    </li> {% endcomment %}
-
-    <li>
-      <a href="{% url 'creator_dashboard:blog_list2' %}">
-          <i class="zmdi zmdi-labels"></i> <span>Blog List</span>
-      </a>
-  </li>
-  <li>
+    </li>
+    {% endcomment %}
     
     <li>
-      <a href="{% url 'creator_dashboard:follower_list' %}">
-          <i class="zmdi zmdi-labels"></i> <span>Followers List</span>
-      </a>
-  </li>
-
-    <li>
-      <a href="{% url 'creator_dashboard:stories' %}">
-          <i class="zmdi zmdi-labels"></i> <span>Stories</span>
-      </a>
-  </li>
-
+        <a href="{% url 'creator_dashboard:blog_list2' %}">
+            <i class="zmdi zmdi-collection-text"></i> <span>Blog List</span>
+        </a>
+    </li>
     
+    <li>
+        <a href="{% url 'creator_dashboard:follower_list' %}">
+            <i class="zmdi zmdi-accounts"></i> <span>Followers List</span>
+        </a>
+    </li>
+    
+    <li>
+        <a href="{% url 'creator_dashboard:stories' %}">
+            <i class="zmdi zmdi-movie"></i> <span>Stories</span>
+        </a>
+    </li>
   
-
-       <li>
-        <a href="register.html" target="_blank">
-          <i class="zmdi zmdi-account-circle"></i> <span>Registration</span>
-        </a>
-      </li>
 
       <li class="sidebar-header">LABELS</li>
       <li><a href="javaScript:void();"><i class="zmdi zmdi-coffee text-danger"></i> <span>Important</span></a></li>
