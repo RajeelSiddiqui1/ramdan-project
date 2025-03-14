@@ -70,9 +70,9 @@ class Blog(models.Model):
     views_count = models.PositiveIntegerField(default=0)
     category = models.ForeignKey(Categories, on_delete=models.CASCADE, null=True, blank=True, related_name="blogs")
     Admin = models.ForeignKey(Admin, on_delete=models.CASCADE, null=True, blank=True)
-    author = models.ForeignKey(Creator, on_delete=models.CASCADE, null=True, blank=True)  # Replace SimpleUser with your actual user model
-    status = models.CharField(max_length=20, choices=STATUS_CHOICES, default='pending')  # Fixed from approved BooleanField
-    is_deleted = models.BooleanField(default=False)  # Added for soft delete
+    author = models.ForeignKey(Creator, on_delete=models.CASCADE, null=True, blank=True)  
+    status = models.CharField(max_length=20, choices=STATUS_CHOICES, default='pending') 
+    is_deleted = models.BooleanField(default=False)  
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
 
@@ -82,6 +82,15 @@ class Blog(models.Model):
     def increase_views(self):
         self.views_count += 1
         self.save(update_fields=["views_count"])
+
+
+class BlogLike(models.Model):
+    blog = models.ForeignKey(Blog, on_delete=models.CASCADE, related_name='likes')
+    user = models.ForeignKey(SimpleUser, on_delete=models.CASCADE, related_name='blog_likes')
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        unique_together = ('blog', 'user')
 
 
 

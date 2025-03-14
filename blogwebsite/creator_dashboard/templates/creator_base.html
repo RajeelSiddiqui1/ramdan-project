@@ -143,36 +143,60 @@
 
       </a>
       <ul class="dropdown-menu dropdown-menu-right">
-       <li class="dropdown-item user-details">
-        {% if user.is_authenticated %}
-        {% with creator=creator %}
-            {% if creator %}
-            <a href="javascript:void(0);">
-                <div class="media">
-                    <div class="avatar">
-                        {% if creator.photo %}
-                        <img src="{{ creator.photo.url }}" alt="{{ creator.first_name }} {{ creator.last_name }}" style="height: 40px; width: 40px; border-radius: 50%; border: 2px solid rgba(255, 255, 255, 0.3);">
-                        {% else %}
-                        <img src="https://via.placeholder.com/40x40" alt="user avatar" style="height: 40px; width: 40px; border-radius: 50%; border: 2px solid rgba(255, 255, 255, 0.3);">
-                        {% endif %}
-                    </div>
-                    <div class="media-body mx-2">
-                        <h6 class="user-title">{{ creator.first_name }} {{ creator.last_name }}</h6>
-                        <p class="user-subtitle">{{ creator.email }}</p>
-                    </div>
-                </div>
-            </a>
-            {% else %}
-            <div class="media">
-                <p class="user-subtitle">No creator profile found</p>
-            </div>
-            {% endif %}
-        {% endwith %}
+        <li class="nav-item">
+          <a class="nav-link dropdown-toggle dropdown-toggle-nocaret" data-toggle="dropdown" href="#">
+            {% if user.is_authenticated and request.session.creator_id %}
+        {% if creator and creator.photo %}
+            <img src="{{ creator.photo.url }}" alt="{{ creator.first_name }} {{ creator.last_name }}" 
+                 style="height: 40px; width: 40px; border-radius: 50%; border: 2px solid rgba(255, 255, 255, 0.3);">
+        {% else %}
+            <img src="https://img.freepik.com/free-vector/follow-me-social-business-theme-design_24877-52233.jpg?t=st=1741201126~exp=1741204726~hmac=002836758f399672fe26032a84f72804a610f6e0b79b08ae7a4b71bd39de9738&w=740" style="height: 40px; width: 40px; border-radius: 50%; border: 2px solid rgba(255, 255, 255, 0.3);"
+                 class="img-circle" alt="Default Profile Image">
+        {% endif %}
     {% else %}
-    <div class="media">
-        <p class="user-subtitle"><a href="{% url 'login' %}" style="color: white; text-decoration: none;">Login</a></p>
-    </div>
+        <img src="https://img.freepik.com/free-vector/follow-me-social-business-theme-design_24877-52233.jpg?t=st=1741201126~exp=1741204726~hmac=002836758f399672fe26032a84f72804a610f6e0b79b08ae7a4b71bd39de9738&w=740" style="height: 40px; width: 40px; border-radius: 50%; border: 2px solid rgba(255, 255, 255, 0.3);"
+             class="img-circle" alt="Default Profile Image">
     {% endif %}
+    
+          </a>
+          <ul class="dropdown-menu dropdown-menu-right">
+           <class="dropdown-item user-details">
+            {% if user.is_authenticated %}
+            {% with creator=creator %}
+                {% if creator %}
+                <a href="javascript:void(0);">
+                    <div class="media">
+                        <div class="avatar">
+                            {% if creator.photo %}
+                            <img src="{{ creator.photo.url }}" alt="{{ creator.first_name }} {{ creator.last_name }}" style="height: 40px; width: 40px; border-radius: 50%; border: 2px solid rgba(255, 255, 255, 0.3);">
+                            {% else %}
+                            <img src="https://via.placeholder.com/40x40" alt="user avatar" style="height: 40px; width: 40px; border-radius: 50%; border: 2px solid rgba(255, 255, 255, 0.3);">
+                            {% endif %}
+                        </div>
+                        
+                          <h6 class="user-title text-light">
+                            {% if creator.first_name and creator.last_name %}
+                                {{ creator.first_name }} {{ creator.last_name }}
+                            {% else %}
+                                Unknown User
+                            {% endif %}
+                        </h6>
+                            <p class="user-subtitle">{{ creator.email }}</p>
+                       
+                    </div>
+                </a>
+                {% else %}
+                <div class="media">
+                    <p class="user-subtitle">No creator profile found</p>
+                </div>
+                {% endif %}
+            {% endwith %}
+        {% else %}
+        <div class="media">
+            <p class="user-subtitle"><a href="{% url 'login' %}" style="color: white; text-decoration: none;">Login</a></p>
+        </div>
+        {% endif %}
+      </ul> 
         </li>
         <li class="dropdown-divider"></li>
         <li class="dropdown-item"><i class="icon-envelope mr-2"></i> Inbox</li>

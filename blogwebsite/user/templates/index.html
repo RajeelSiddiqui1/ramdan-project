@@ -36,19 +36,20 @@ Home Page
                         <a href="{% url 'detail' item.id %}" class="btn btn-primary btn-sm fw-bold px-4 py-2 rounded-pill">
                             Read More
                         </a>
-                        {% if item.views_count > 6 %}
+                        {% if item.views_count > 4 %}
                         <span class="badge bg-danger px-3 py-2 rounded-pill animate__animated animate__pulse animate__infinite">🔥 Hot</span>
-                        {% elif item.views_count >= 6 %}
+                        {% elif item.views_count >= 2 %}
                         <span class="badge bg-warning px-3 py-2 rounded-pill animate__animated animate__bounceIn">⭐ Trending</span>
                         {% else %}
                         <span class="badge bg-info px-3 py-2 rounded-pill">✨ Fresh</span>
                         {% endif %}
                     </div>
                 </div>
-                <footer class="card-footer bg-transparent border-top-0 p-4 pt-0">
+                <footer class="card-footer bg-transparent border-top-0 p-4 pt-0 d-flex justify-content-between align-items-center">
                     <div class="author d-flex align-items-center">
                         {% if item.author.first_name or item.author.last_name %}
-                        <img src="{{ item.author.photo.url|default:'https://img.freepik.com/free-vector/follow-me-social-business-theme-design_24877-52233.jpg?t=st=1741201126~exp=1741204726~hmac=002836758f399672fe26032a84f72804a610f6e0b79b08ae7a4b71bd39de9738&w=740' }}" class="author-img me-3" 
+                        <img src="{{ item.author.photo.url|default:'https://img.freepik.com/free-vector/follow-me-social-business-theme-design_24877-52233.jpg?t=st=1741201126~exp=1741204726~hmac=002836758f399672fe26032a84f72804a610f6e0b79b08ae7a4b71bd39de9738&w=740' }}" 
+                             class="author-img me-3" 
                              alt="{{ item.author.first_name }} {{ item.author.last_name }}">
                         <p class="text-dark m-0 fw-medium">By 
                             <a href="{% url 'creator_profile' item.author.id %}" class="text-primary hover-link">
@@ -59,6 +60,21 @@ Home Page
                         <img src="/static/images/default_author.jpg" class="author-img me-3" alt="Admin">
                         <p class="text-dark m-0 fw-medium">By <span class="text-primary">Admin</span></p>
                         {% endif %}
+                    </div>
+                    <div class="d-flex align-items-center">
+                        <!-- Like Button -->
+                        <button class="btn btn-outline-primary like-button me-2" 
+                                data-blog-id="{{ item.id }}"
+                                data-toggle-url="{% url 'toggle_like' item.id %}"
+                                {% if not request.user.is_authenticated %}disabled{% endif %}>
+                            {% if item.is_liked %}
+                                <i class="fas fa-heart"></i>
+                            {% else %}
+                                <i class="far fa-heart"></i>
+                            {% endif %}
+                        </button>
+                        <!-- Like Count -->
+                        <span class="like-count" data-blog-id="{{ item.id }}">{{ item.like_count }} Like{{ item.like_count|pluralize }}</span>
                     </div>
                 </footer>
             </article>
@@ -192,6 +208,10 @@ body {
 .h-100 {
     height: 100%;
 }
+.like-button.liked {
+    color: #dc3545;
+    border-color: #dc3545;
+}
 @media (max-width: 768px) { 
     .card-img-top { 
         height: 200px; 
@@ -209,7 +229,62 @@ body {
 }
 </style>
 
+<!-- External Libraries -->
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/4.1.1/animate.min.css" />
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css" />
+
+<!-- JavaScript for Like Functionality -->
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const likeButtons = document.querySelectorAll('.like-button');
+    
+    likeButtons.forEach(button => {
+        button.addEventListener('click', function(e) {
+            e.preventDefault();
+            
+            if (this.disabled) {
+                alert('Please log in to like this post.');
+                return;
+            }
+            
+            const blogId = this.getAttribute('data-blog-id');
+            const toggleUrl = this.getAttribute('data-toggle-url');
+            const csrfToken = '{{ csrf_token }}';
+            
+            fetch(toggleUrl, {
+                method: 'POST',
+                headers: {
+                    'X-CSRFToken': csrfToken,
+                },
+            })
+            .then(response => {
+                if (!response.ok) {
+                    throw new Error(`HTTP error! Status: ${response.status}`);
+                }
+                return response.json();
+            })
+            .then(data => {
+                if (data.success) {
+                    const likeCountSpan = document.querySelector(`.like-count[data-blog-id="${blogId}"]`);
+                    if (data.is_liked) {
+                        button.innerHTML = '<i class="fas fa-heart"></i>';
+                        button.classList.add('liked');
+                    } else {
+                        button.innerHTML = '<i class="far fa-heart"></i>';
+                        button.classList.remove('liked');
+                    }
+                    likeCountSpan.textContent = `${data.like_count} Like${data.like_count === 1 ? '' : 's'}`;
+                } else {
+                    alert('Server Error: ' + data.message);
+                }
+            })
+            .catch(error => {
+                console.error('Fetch Error:', error);
+                alert('Request Failed: ' + error.message);
+            });
+        });
+    });
+});
+</script>
 {% endblock %}

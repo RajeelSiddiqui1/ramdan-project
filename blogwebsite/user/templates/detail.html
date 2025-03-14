@@ -19,14 +19,30 @@
             <h1 class="fw-bold text-success">{{ blog.name }}</h1>
             <p class="text-muted">
                 {% if blog.author.first_name or blog.author.last_name %}
-                By  <strong>{{ blog.author.first_name }} {{ blog.author.last_name }}</strong> | Published on <strong>{{ blog.created_at }}</strong></p>
+                    By <strong>{{ blog.author.first_name }} {{ blog.author.last_name }}</strong> | Published on <strong>{{ blog.created_at }}</strong>
                 {% else %}
-                By <strong>Admin</strong>
+                    By <strong>Admin</strong>
                 {% endif %}
             </p>
 
+            <!-- Like Button and Count -->
+            <div class="mb-3 d-flex align-items-center">
+                <button class="btn btn-outline-primary like-button me-2" 
+                        data-blog-id="{{ blog.id }}"
+                        data-toggle-url="{% url 'toggle_like' blog.id %}"
+                        id="like-button-{{ blog.id }}">
+                    {% if is_liked %}
+                        <i class="fas fa-heart"></i> Unlike
+                    {% else %}
+                        <i class="far fa-heart"></i> Like
+                    {% endif %}
+                    <span class="loading-spinner" style="display: none;"> Loading...</span>
+                </button>
+                <span class="like-count" data-blog-id="{{ blog.id }}">{{ like_count }} Like{{ like_count|pluralize }}</span>
+            </div>
+
             <div class="mt-3 fs-5 lh-lg">
-                {{ blog.description }}
+                {{ blog.description|safe }}
             </div>
 
             <!-- Share Buttons -->
@@ -53,17 +69,17 @@
                     <div class="card-body">
                         <h5 class="fw-bold mb-3">More from {{ blog.category.name }}</h5>
                         {% for related in related_blogs %}
-                        <div class="d-flex align-items-center my-3 border-bottom pb-2">
-                            <a href="{% url 'detail' related.id %}" class="text-decoration-none d-flex align-items-center w-100">
-                                <img src="{{ related.photo.url }}" class="rounded me-3" style="width: 90px; height: 90px; object-fit: cover; border-radius: 10px;">
-                                <div>
-                                    <h6 class="m-0 text-dark fw-semibold">{{ related.name }}</h6>
-                                    <p class="text-muted small m-0">{{ related.created_at }}</p>
-                                </div>
-                            </a>
-                        </div>
+                            <div class="d-flex align-items-center my-3 border-bottom pb-2">
+                                <a href="{% url 'detail' related.id %}" class="text-decoration-none d-flex align-items-center w-100">
+                                    <img src="{{ related.photo.url }}" class="rounded me-3" style="width: 90px; height: 90px; object-fit: cover; border-radius: 10px;">
+                                    <div>
+                                        <h6 class="m-0 text-dark fw-semibold">{{ related.name }}</h6>
+                                        <p class="text-muted small m-0">{{ related.created_at }}</p>
+                                    </div>
+                                </a>
+                            </div>
                         {% empty %}
-                        <p class="text-muted text-center">No related blogs found.</p>
+                            <p class="text-muted text-center">No related blogs found.</p>
                         {% endfor %}
                     </div>
                 </div>
@@ -89,5 +105,66 @@
         transform: scale(1.05);
         transition: 0.3s ease-in-out;
     }
+    .like-button.liked {
+        color: #dc3545;
+        border-color: #dc3545;
+    }
 </style>
+
+<!-- JavaScript for Like Functionality -->
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const likeButtons = document.querySelectorAll('.like-button');
+    
+    likeButtons.forEach(button => {
+        button.addEventListener('click', function(e) {
+            e.preventDefault();
+            
+            const blogId = this.getAttribute('data-blog-id');
+            const toggleUrl = this.getAttribute('data-toggle-url');
+            const csrfToken = '{{ csrf_token }}';
+            const spinner = this.querySelector('.loading-spinner');
+            
+            this.disabled = true;
+            spinner.style.display = 'inline';
+            
+            fetch(toggleUrl, {
+                method: 'POST',
+                headers: {
+                    'X-CSRFToken': csrfToken,
+                },
+            })
+            .then(response => {
+                if (!response.ok) {
+                    throw new Error(`HTTP error! Status: ${response.status}`);
+                }
+                return response.json();
+            })
+            .then(data => {
+                if (data.success) {
+                    const likeCountSpan = document.querySelector(`.like-count[data-blog-id="${blogId}"]`);
+                    if (data.is_liked) {
+                        button.innerHTML = '<i class="fas fa-heart"></i> Unlike <span class="loading-spinner" style="display: none;">Loading...</span>';
+                        button.classList.add('liked');
+                    } else {
+                        button.innerHTML = '<i class="far fa-heart"></i> Like <span class="loading-spinner" style="display: none;">Loading...</span>';
+                        button.classList.remove('liked');
+                    }
+                    likeCountSpan.textContent = `${data.like_count} Like${data.like_count === 1 ? '' : 's'}`;
+                } else {
+                    alert('Server Error: ' + data.message);
+                }
+            })
+            .catch(error => {
+                console.error('Fetch Error:', error);
+                alert('Request Failed: ' + error.message);
+            })
+            .finally(() => {
+                this.disabled = false;
+                spinner.style.display = 'none';
+            });
+        });
+    });
+});
+</script>
 {% endblock %}

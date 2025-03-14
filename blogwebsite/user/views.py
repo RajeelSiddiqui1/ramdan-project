@@ -6,10 +6,11 @@ from django.http import JsonResponse
 from django.contrib.auth.hashers import check_password
 from django.contrib import messages
 from django.contrib.auth.decorators import login_required
-from .models import Blog, BlogRead, Creator, Follow, Categories, ContactUs, SimpleUser
-from django.db.models import Q,F
+from .models import Blog, BlogRead, Creator, Follow, Categories, ContactUs, SimpleUser, BlogLike
+from django.db.models import Q,F, Count
 from admin_side.models import BlogCountry
 from django.http import HttpResponse
+from django.views.decorators.http import require_POST
 
 def register(request):
     if request.method == 'POST':
@@ -75,7 +76,7 @@ def logout(request):
 def home_page(request):
     query = request.GET.get('q', '')
     category_id = request.GET.get('category','')
-    blogs = Blog.objects.filter(is_deleted=False)
+    blogs = Blog.objects.filter(is_deleted=False).annotate(like_count=Count('likes'))
     categories = Categories.objects.all()
 
     if query:
@@ -87,13 +88,24 @@ def home_page(request):
 
     if category_id:
         blogs = blogs.filter(category__id=category_id)
+  
+
+    if request.user.is_authenticated:
+        liked_blogs = BlogLike.objects.filter(user=request.user).values_list('blog_id',flat=True)
+        for blog in blogs:
+            blog.is_liked = blog.id in liked_blogs
+
+    else:
+        for blog in blogs:
+            blog.is_liked = False        
+
 
     context = {
         'query': query,
         'blogs': blogs,
         'categories': categories,
         'selected_category': category_id,
-    }    
+    }          
 
     return render(request, 'index.html',context )
     
@@ -109,7 +121,12 @@ def detail(request, blog_id):
         BlogRead.objects.create(user=request.user, blog=blog)
         Blog.objects.filter(id=blog.id).update(views_count=F('views_count') + 1)
 
-    return render(request, "detail.html", {'blog': blog, 'related_blogs': related_blogs})
+
+    is_liked = BlogLike.objects.filter(blog=blog, user=request.user).exists()
+    like_count = BlogLike.objects.filter(blog=blog).count()
+
+    return render(request, "detail.html", {'blog': blog, 'related_blogs': related_blogs,'is_liked': is_liked,'like_count': like_count,})
+
 
 def blog_create(request):
     if request.method == "POST":
@@ -123,6 +140,35 @@ def blog_create(request):
     else:
         form = BlogForm()
     return render(request,'blog_form.html',{'form':form})    
+
+
+@require_POST
+@login_required
+def toggle_like(request, blog_id):
+    try:
+        blog = get_object_or_404(Blog, pk=blog_id)
+        user = request.user
+
+        like, created = BlogLike.objects.get_or_create(blog=blog, user=user)
+
+        if not created:
+            like.delete()
+            is_liked = False
+        else:
+            is_liked = True
+        
+        return JsonResponse({
+            'success': True,
+            'is_liked': is_liked,
+            'message': 'Like status updated successfully'
+        })
+    except Exception as e:
+        print(f"Error in toggle_like: {str(e)}") 
+        return JsonResponse({
+            'success': False,
+            'message': str(e)
+        }, status=500)
+
 
 
 def content_creator_page(request):
@@ -307,3 +353,5 @@ def unfollow_creator(request,creator_id):
     Follow.objects.filter(follower=request.user, following_id=creator_id).delete()
     messages.success(request, f'You unfollow {creator.first_name}{creator.last_name} ')
     return redirect('following_list')
+
+
