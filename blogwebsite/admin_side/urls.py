@@ -7,7 +7,7 @@ app_name = 'admin_side'  # Updated namespace
 urlpatterns = [
     # admin 
     path('', views.dashboard, name='dashboard'),
-    # path('admin/signup/', views.admin_signup, name='admin_signup'),
+    path('admin/signup/', views.admin_singup, name='admin_signup'),
     path('admin/login/', views.admin_login, name='admin_login'),
      path('logout/', views.admin_logout, name='admin_logout'),
     # path('staff/login/', views.staff_login, name='staff_login'),

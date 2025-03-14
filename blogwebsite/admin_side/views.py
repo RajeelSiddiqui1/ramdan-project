@@ -4,7 +4,7 @@ from django.shortcuts import get_object_or_404
 from django.contrib.auth.hashers import check_password
 from django.contrib import messages
 from django.core.paginator import Paginator
-from .forms import LoginForm, StaffForm, StaffEditForm,CategoryForm,BlogForm,BlogStatusForm,BlogCountryForm
+from .forms import LoginForm, StaffForm, StaffEditForm,CategoryForm,BlogForm,BlogStatusForm,BlogCountryForm, SignupForm
 from user.forms import ContactUsForm
 from .models import Admin, Staff, BlogCountry
 from user.models import Categories,Blog,SimpleUser, Creator, ContactUs
@@ -19,6 +19,18 @@ def dashboard(request):
         'admin_email': request.session.get('admin_email', ''),
     }
     return render(request, 'dashboard.html',context)
+
+
+def admin_singup(request):
+    if request.method == "POST":
+        form = SignupForm(request.POST)
+        if form.is_valid():
+            form.save()
+            return redirect('admin_side:admin_login')
+    
+    else:
+        form = SignupForm()
+    return render(request, 'admin_signup.html',{'form':form})    
 
 def admin_login(request):
    
@@ -44,7 +56,9 @@ def admin_login(request):
     return render(request, 'admin_login.html', {'form': form})
 
 def admin_logout(request):
-    request.session.flush()
+    keys_to_remove = [key for key in request.session.keys() if key.startswith('admin_')]
+    for key in keys_to_remove:
+        del request.session[key]
     return redirect('admin_side:admin_login')
 
 def staff_login(request):

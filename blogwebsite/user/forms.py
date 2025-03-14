@@ -1,6 +1,6 @@
 from django import forms
 from django.contrib.auth.forms import UserCreationForm
-from .models import SimpleUser,Blog, Creator, ContactUs
+from .models import SimpleUser,Blog, Creator, ContactUs, Comment
 import re
 
 class SignupForm(UserCreationForm):
@@ -240,4 +240,17 @@ class ContactUsForm(forms.ModelForm):
             'phone_number': 'Phone Number',
             'issue': 'Issue Type',
             'problem': 'Problem Description',
+        }
+
+
+class CommentForm(forms.ModelForm):
+    class Meta:
+        model = Comment
+        fields = ['content']
+        widgets = {
+            'content': forms.Textarea(attrs={
+                'class': 'form-control',
+                'rows': 3,
+                'placeholder': 'Write your comment here...',
+            }),
         }

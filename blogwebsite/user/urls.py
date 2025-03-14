@@ -4,7 +4,7 @@ from . import views
 urlpatterns = [
     path('register/', views.register, name='register'),
     path('edit_profile/', views.edit_profile, name='edit_profile'),
-    path('logout/', views.logout, name='logout'),
+    # path('logout/', views.logout, name='logout'),
     path('', views.home_page, name="index"),
     path('<int:blog_id>/detail/', views.detail, name="detail"),
     path('blog/<int:blog_id>/toggle-like/', views.toggle_like, name='toggle_like'),
@@ -21,4 +21,5 @@ urlpatterns = [
     path('contact_us_delete/<int:contact_id>', views.contact_us_delete, name='contact_us_delete'),
     path('following/', views.following_list, name='following_list'),
     path('unfollow/<int:creator_id>/', views.unfollow_creator, name='unfollow_creator'),
+    path('home/<int:blog_id>/load-more-comments/', views.load_more_comments, name='load_more_comments')
 ]

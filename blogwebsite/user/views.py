@@ -1,12 +1,12 @@
 from django.shortcuts import render, redirect,get_object_or_404
 from django.contrib.auth import authenticate
 from django.contrib.auth import login as auth_login
-from .forms import SignupForm, LoginForm, EditProfileForm, BlogForm, CreatorForm, CreatorLoginForm, ContactUsForm
+from .forms import SignupForm, LoginForm, EditProfileForm, BlogForm, CreatorForm, CreatorLoginForm, ContactUsForm, CommentForm
 from django.http import JsonResponse
 from django.contrib.auth.hashers import check_password
 from django.contrib import messages
 from django.contrib.auth.decorators import login_required
-from .models import Blog, BlogRead, Creator, Follow, Categories, ContactUs, SimpleUser, BlogLike
+from .models import Blog, BlogRead, Creator, Follow, Categories, ContactUs, SimpleUser, BlogLike, Comment
 from django.db.models import Q,F, Count
 from admin_side.models import BlogCountry
 from django.http import HttpResponse
@@ -67,9 +67,12 @@ def edit_profile(request):
         form = EditProfileForm(instance=request.user)
      return render(request, 'edit_profile.html', {'form': form})
 
-def logout(request):
-   request.session.flush()
-   return redirect('index')
+
+# def logout(request):
+#     keys_to_remove = [key for key in request.session.keys() if key.startswith('user_')]
+#     for key in keys_to_remove:
+#         del request.session[key]
+#     return redirect('index')
 
 
    
@@ -125,8 +128,65 @@ def detail(request, blog_id):
     is_liked = BlogLike.objects.filter(blog=blog, user=request.user).exists()
     like_count = BlogLike.objects.filter(blog=blog).count()
 
-    return render(request, "detail.html", {'blog': blog, 'related_blogs': related_blogs,'is_liked': is_liked,'like_count': like_count,})
 
+    comments = Comment.objects.filter(blog=blog).order_by('-created_at')[:1]
+    total_comments = Comment.objects.filter(blog=blog).count()
+    comment_form = CommentForm()
+
+    if request.method == 'POST' and 'comment_submit' in request.POST:
+        comment_form = CommentForm(request.POST)
+        if comment_form.is_valid():
+            comment = comment_form.save(commit=False)
+            comment.blog = blog
+            comment.user = request.user
+            comment.save()
+            return redirect('detail', blog_id=blog.id)
+
+    return render(request, "detail.html", {'blog': blog, 'related_blogs': related_blogs,'is_liked': is_liked,'like_count': like_count,'comments': comments,'comment_form': comment_form,'total_comments': total_comments,})
+
+
+@require_POST
+@login_required
+def load_more_comments(request, blog_id):
+    try:
+        blog = get_object_or_404(Blog, pk=blog_id)
+        offset = int(request.POST.get('offset', 10))  
+        limit = 10
+        comments = Comment.objects.filter(blog=blog).order_by('-created_at')[offset:offset + limit]
+        total_comments = Comment.objects.filter(blog=blog).count()
+
+        comments_html = ""
+        for comment in comments:
+            comments_html += (
+                f'<div class="card mb-3 shadow-sm">'
+                f'    <div class="card-body d-flex">'
+                f'        <img src="{comment.user.image.url if hasattr(comment.user, "image") and comment.user.image else "/static/images/default_user.jpg"}" '
+                f'             class="rounded-circle me-3" '
+                f'             alt="{comment.user.username}" '
+                f'             style="width: 50px; height: 50px; object-fit: cover;">'
+                f'        <div class="flex-grow-1">'
+                f'            <p class="fw-semibold mb-1">{comment.user.username}</p>'
+                f'            <p class="text-muted small mb-1">{comment.created_at.strftime("%B %d, %Y %H:%M")}</p>'
+                f'            <p class="mb-0">{comment.content}</p>'
+                f'        </div>'
+                f'    </div>'
+                f'</div>'
+            )
+
+        has_more = (offset + limit) < total_comments
+
+        return JsonResponse({
+            'success': True,
+            'comments_html': comments_html,
+            'has_more': has_more,
+        })
+    except Exception as e:
+        print(f"Error in load_more_comments: {str(e)}")
+        return JsonResponse({
+            'success': False,
+            'message': str(e)
+        }, status=500)
+    
 
 def blog_create(request):
     if request.method == "POST":

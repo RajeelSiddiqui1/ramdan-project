@@ -92,12 +92,9 @@ def creator_profile_edit(request, creator_id):
 
 
 def creator_logout(request):
-    if 'creator_logged_in' in request.session:
-        del request.session['creator_logged_in']
-    if 'creator_id' in request.session:
-        del request.session['creator_id']
-    if 'creator_name' in request.session:
-        del request.session['creator_name']
+    keys_to_remove = [key for key in request.session.keys() if key.startswith('creator_')]
+    for key in keys_to_remove:
+        del request.session[key]
     messages.success(request, 'Successfully logged out')
     return redirect('creator_dashboard:creator_login')
 
