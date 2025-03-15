@@ -61,6 +61,17 @@
                 </div>
             </div>
 
+              <!-- Comment Form -->
+              <div class="mt-4">
+                <h4 class="fw-semibold mb-3">Add a Comment</h4>
+                <form method="POST" action="">
+                    {% csrf_token %}
+                    <input type="hidden" name="comment_submit" value="1">
+                    {{ comment_form.as_p }}
+                    <button type="submit" class="btn btn-primary mt-2">Submit Comment</button>
+                </form>
+            </div>
+
             <!-- Comment Section -->
             <div class="mt-5">
                 <h3 class="fw-bold mb-4">Comments ({{ total_comments }})</h3>
@@ -97,16 +108,7 @@
                 </div>
                 {% endif %}
 
-                <!-- Comment Form -->
-                <div class="mt-4">
-                    <h4 class="fw-semibold mb-3">Add a Comment</h4>
-                    <form method="POST" action="">
-                        {% csrf_token %}
-                        <input type="hidden" name="comment_submit" value="1">
-                        {{ comment_form.as_p }}
-                        <button type="submit" class="btn btn-primary mt-2">Submit Comment</button>
-                    </form>
-                </div>
+              
             </div>
         </div>
 

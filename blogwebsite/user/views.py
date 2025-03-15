@@ -214,13 +214,15 @@ def toggle_like(request, blog_id):
         if not created:
             like.delete()
             is_liked = False
+            message = 'Blog unliked successfully'
         else:
             is_liked = True
+            message = 'Blog liked successfully'
         
         return JsonResponse({
             'success': True,
             'is_liked': is_liked,
-            'message': 'Like status updated successfully'
+            'message':message,
         })
     except Exception as e:
         print(f"Error in toggle_like: {str(e)}") 

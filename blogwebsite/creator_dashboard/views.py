@@ -1,7 +1,7 @@
 from django.shortcuts import render, redirect
 from django.urls import reverse_lazy
 from django.contrib import messages
-from user.models import Creator, Blog, BlogRead, Follow
+from user.models import Creator, Blog, BlogRead, Follow, BlogLike, Comment
 from user.forms import COUNTRIES
 from django.contrib.auth.hashers import check_password
 from .forms import CreatorLoginForm, BlogForm, StoryForm, CreatorForm
@@ -201,6 +201,39 @@ def blog_views_check(request,blog_id):
         'views': views,
         'views_count': views.count()
     })
+
+
+def blog_likes_check(request,blog_id):
+    if not request.session.get('creator_logged_in') or not request.session.get('creator_id'):
+        messages.warning(request, 'Your session has expired. Please login again.')
+        return redirect('creator_dashboard:creator_login')
+    
+    creator = Creator.objects.get(id=request.session.get('creator_id'))
+    blog = get_object_or_404(Blog, pk=blog_id)
+    likes = BlogLike.objects.filter(blog=blog)
+    return render(request, 'blog_likes.html', {
+        'creator':creator,
+        'blog': blog,
+        'likes': likes,
+        'views_count': likes.count()
+    })
+
+
+def blog_comments_check(request,blog_id):
+    if not request.session.get('creator_logged_in') or not request.session.get('creator_id'):
+        messages.warning(request, 'Your session has expired. Please login again.')
+        return redirect('creator_dashboard:creator_login')
+    
+    creator = Creator.objects.get(id=request.session.get('creator_id'))
+    blog = get_object_or_404(Blog, pk=blog_id)
+    comments = Comment.objects.filter(blog=blog)
+    return render(request, 'blog_comments.html', {
+        'creator':creator,
+        'blog': blog,
+        'comments': comments,
+        'comments_count': comments.count()
+    })
+
 
 
 def creator_story_list(request):
