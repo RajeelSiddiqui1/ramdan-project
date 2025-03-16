@@ -6,7 +6,7 @@ from django.http import JsonResponse
 from django.contrib.auth.hashers import check_password
 from django.contrib import messages
 from django.contrib.auth.decorators import login_required
-from .models import Blog, BlogRead, Creator, Follow, Categories, ContactUs, SimpleUser, BlogLike, Comment
+from .models import Blog, BlogRead, Creator, Follow, Categories, ContactUs, SimpleUser, BlogLike, Comment, CommentLike
 from django.db.models import Q,F, Count
 from admin_side.models import BlogCountry
 from django.http import HttpResponse
@@ -129,8 +129,8 @@ def detail(request, blog_id):
     like_count = BlogLike.objects.filter(blog=blog).count()
 
 
-    comments = Comment.objects.filter(blog=blog).order_by('-created_at')[:1]
-    total_comments = Comment.objects.filter(blog=blog).count()
+    comments = Comment.objects.filter(blog=blog, parent__isnull=True, is_deleted=False).order_by('-created_at')
+    total_comments = Comment.objects.filter(blog=blog, is_deleted=False).count()
     comment_form = CommentForm()
 
     if request.method == 'POST' and 'comment_submit' in request.POST:
@@ -139,10 +139,31 @@ def detail(request, blog_id):
             comment = comment_form.save(commit=False)
             comment.blog = blog
             comment.user = request.user
+            # comment reply 
+            parent_id = request.POST.get('parent_id')
+            if parent_id:
+                comment.parent = Comment.objects.get(id=parent_id)
             comment.save()
             return redirect('detail', blog_id=blog.id)
 
-    return render(request, "detail.html", {'blog': blog, 'related_blogs': related_blogs,'is_liked': is_liked,'like_count': like_count,'comments': comments,'comment_form': comment_form,'total_comments': total_comments,})
+
+    comment_likes = {comment.id: CommentLike.objects.filter(comment=comment, user=request.user).exists() 
+                    for comment in comments}    
+
+
+           
+
+    context = {
+        'blog': blog,
+        'related_blogs': related_blogs,
+        'is_liked': is_liked,
+        'like_count': like_count,
+        'comments': comments,
+        'comment_form': comment_form,
+        'total_comments': total_comments,
+        'comment_likes': comment_likes,
+    }
+    return render(request, "detail.html", context)
 
 
 @require_POST
@@ -187,6 +208,32 @@ def load_more_comments(request, blog_id):
             'message': str(e)
         }, status=500)
     
+
+@login_required
+def like_comment(request, comment_id):
+    comment = get_object_or_404(Comment, id=comment_id, is_deleted=False)
+    if request.method == 'POST':
+        liked = CommentLike.objects.filter(comment=comment, user=request.user).exists()
+        if not liked:
+            CommentLike.objects.create(comment=comment, user=request.user)
+        return JsonResponse({
+            'status': 'success',
+            'liked': True,
+            'like_count': comment.like_count
+        })
+    return JsonResponse({'status': 'error', 'message': 'Invalid request'})
+
+@login_required
+def unlike_comment(request, comment_id):
+    comment = get_object_or_404(Comment, id=comment_id, is_deleted=False)
+    if request.method == 'POST':
+        CommentLike.objects.filter(comment=comment, user=request.user).delete()
+        return JsonResponse({
+            'status': 'success',
+            'liked': False,
+            'like_count': comment.like_count
+        })
+    return JsonResponse({'status': 'error', 'message': 'Invalid request'})
 
 def blog_create(request):
     if request.method == "POST":

@@ -21,5 +21,8 @@ urlpatterns = [
     path('contact_us_delete/<int:contact_id>', views.contact_us_delete, name='contact_us_delete'),
     path('following/', views.following_list, name='following_list'),
     path('unfollow/<int:creator_id>/', views.unfollow_creator, name='unfollow_creator'),
-    path('home/<int:blog_id>/load-more-comments/', views.load_more_comments, name='load_more_comments')
+    path('home/<int:blog_id>/load-more-comments/', views.load_more_comments, name='load_more_comments'),
+    path('comment/<int:comment_id>/like/', views.like_comment, name='like_comment'),
+    path('comment/<int:comment_id>/unlike/', views.unlike_comment, name='unlike_comment'),
+
 ]

@@ -141,6 +141,21 @@ class Comment(models.Model):
     content = models.TextField()
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
+    parent = models.ForeignKey('self', null=True, blank=True, on_delete=models.CASCADE, related_name='replies')
+    is_deleted = models.BooleanField(default=False)
 
     def __str__(self):
         return f"Comment by {self.user.username} on {self.blog.name}"
+    
+    @property
+    def like_count(self):
+        return self.comment_likes.count()
+
+
+class CommentLike(models.Model):
+    comment = models.ForeignKey(Comment, on_delete=models.CASCADE, related_name='comment_likes')
+    user = models.ForeignKey(SimpleUser, on_delete=models.CASCADE)
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        unique_together = ('comment', 'user')

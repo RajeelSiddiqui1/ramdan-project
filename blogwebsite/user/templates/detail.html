@@ -61,8 +61,8 @@
                 </div>
             </div>
 
-              <!-- Comment Form -->
-              <div class="mt-4">
+            <!-- Comment Form -->
+            <div class="mt-4">
                 <h4 class="fw-semibold mb-3">Add a Comment</h4>
                 <form method="POST" action="">
                     {% csrf_token %}
@@ -79,7 +79,7 @@
                 <!-- Existing Comments -->
                 <div id="comments-container">
                     {% for comment in comments %}
-                    <div class="card mb-3 shadow-sm">
+                    <div class="card mb-3 shadow-sm comment" id="comment-{{ comment.id }}">
                         <div class="card-body d-flex">
                             <img src="{{ comment.user.image.url|default:'/static/images/default_user.jpg' }}" 
                                  class="rounded-circle me-3" 
@@ -88,7 +88,58 @@
                             <div class="flex-grow-1">
                                 <p class="fw-semibold mb-1">{{ comment.user.username }}</p>
                                 <p class="text-muted small mb-1">{{ comment.created_at|date:"F d, Y H:i" }}</p>
-                                <p class="mb-0">{{ comment.content }}</p>
+                                <p class="mb-2">{{ comment.content }}</p>
+                                <div class="d-flex gap-2 align-items-center">
+                                    <button class="btn btn-sm btn-outline-primary like-comment-btn"
+                                            data-comment-id="{{ comment.id }}"
+                                            data-liked="{% if comment_likes %}true{% else %}false{% endif %}">
+                                        {% if comment_likes %}
+                                            <i class="fas fa-heart"></i> Unlike
+                                        {% else %}
+                                            <i class="far fa-heart"></i> Like
+                                        {% endif %}
+                                    </button>
+                                    <span class="comment-like-count">{{ comment.like_count }} Like{{ comment.like_count|pluralize }}</span>
+                                    <button class="btn btn-sm btn-outline-secondary reply-btn" data-comment-id="{{ comment.id }}">Reply</button>
+                                </div>
+
+                                <!-- Reply Form (hidden by default) -->
+                                <form class="reply-form mt-2" style="display:none;" method="POST">
+                                    {% csrf_token %}
+                                    <input type="hidden" name="comment_submit" value="1">
+                                    <input type="hidden" name="parent_id" value="{{ comment.id }}">
+                                    {{ comment_form.as_p }}
+                                    <button type="submit" class="btn btn-primary btn-sm mt-2">Post Reply</button>
+                                </form>
+
+                                <!-- Replies -->
+                                {% for reply in comment.replies.all %}
+                                <div class="card mt-2 shadow-sm">
+                                    <div class="card-body d-flex">
+                                        <img src="{{ reply.user.image.url|default:'/static/images/default_user.jpg' }}"
+                                             class="rounded-circle me-3"
+                                             alt="{{ reply.user.username }}"
+                                             style="width: 40px; height: 40px; object-fit: cover;">
+                                        <div class="flex-grow-1">
+                                            <p class="fw-semibold mb-1">{{ reply.user.username }}</p>
+                                            <p class="text-muted small mb-1">{{ reply.created_at|date:"F d, Y H:i" }}</p>
+                                            <p class="mb-2">{{ reply.content }}</p>
+                                            <div class="d-flex gap-2 align-items-center">
+                                                <button class="btn btn-sm btn-outline-primary like-comment-btn"
+                                                        data-comment-id="{{ reply.id }}"
+                                                        data-liked="{% if comment_likes %}true{% else %}false{% endif %}">
+                                                    {% if comment_likes %}
+                                                        <i class="fas fa-heart"></i> Unlike
+                                                    {% else %}
+                                                        <i class="far fa-heart"></i> Like
+                                                    {% endif %}
+                                                </button>
+                                                <span class="comment-like-count">{{ reply.like_count }} Like{{ reply.like_count|pluralize }}</span>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                                {% endfor %}
                             </div>
                         </div>
                     </div>
@@ -96,19 +147,6 @@
                     <p class="text-muted">No comments yet. Be the first to comment!</p>
                     {% endfor %}
                 </div>
-
-                <!-- Show More Button -->
-                {% if total_comments > 1 %}
-                <div class="text-center mt-3">
-                    <button id="show-more-comments" class="btn btn-outline-primary" 
-                            data-blog-id="{{ blog.id }}" 
-                            data-offset="1">
-                        Show More Comments
-                    </button>
-                </div>
-                {% endif %}
-
-              
             </div>
         </div>
 
@@ -155,7 +193,7 @@
         transform: scale(1.05);
         transition: 0.3s ease-in-out;
     }
-    .like-button.liked {
+    .like-button.liked, .like-comment-btn.liked {
         color: #dc3545;
         border-color: #dc3545;
     }
@@ -164,7 +202,7 @@
 <!-- JavaScript for Like and Comment Functionality -->
 <script>
 document.addEventListener('DOMContentLoaded', function() {
-    // Like Button Functionality
+    // Blog Like Button Functionality
     const likeButtons = document.querySelectorAll('.like-button');
     likeButtons.forEach(button => {
         button.addEventListener('click', function(e) {
@@ -183,10 +221,7 @@ document.addEventListener('DOMContentLoaded', function() {
                     'X-CSRFToken': csrfToken,
                 },
             })
-            .then(response => {
-                if (!response.ok) throw new Error(`HTTP error! Status: ${response.status}`);
-                return response.json();
-            })
+            .then(response => response.json())
             .then(data => {
                 if (data.success) {
                     const likeCountSpan = document.querySelector(`.like-count[data-blog-id="${blogId}"]`);
@@ -198,13 +233,7 @@ document.addEventListener('DOMContentLoaded', function() {
                         button.classList.remove('liked');
                     }
                     likeCountSpan.textContent = `${data.like_count} Like${data.like_count === 1 ? '' : 's'}`;
-                } else {
-                    alert('Server Error: ' + data.message);
                 }
-            })
-            .catch(error => {
-                console.error('Fetch Error:', error);
-                alert('Request Failed: ' + error.message);
             })
             .finally(() => {
                 this.disabled = false;
@@ -213,43 +242,55 @@ document.addEventListener('DOMContentLoaded', function() {
         });
     });
 
-    // Show More Comments Functionality
-    const showMoreButton = document.getElementById('show-more-comments');
-    if (showMoreButton) {
-        showMoreButton.addEventListener('click', function() {
-            const blogId = this.getAttribute('data-blog-id');
-            const offset = parseInt(this.getAttribute('data-offset'));
+    // Comment Like Functionality
+    const commentLikeButtons = document.querySelectorAll('.like-comment-btn');
+    commentLikeButtons.forEach(button => {
+        button.addEventListener('click', function(e) {
+            e.preventDefault();
+            const commentId = this.getAttribute('data-comment-id');
+            const isLiked = this.getAttribute('data-liked') === 'true';
+            const url = isLiked ? `/comment/${commentId}/unlike/` : `/comment/${commentId}/like/`;
             const csrfToken = '{{ csrf_token }}';
             
-            fetch(`{% url 'load_more_comments' blog.id %}`, {
+            fetch(url, {
                 method: 'POST',
                 headers: {
                     'X-CSRFToken': csrfToken,
-                    'Content-Type': 'application/x-www-form-urlencoded',
+                    'Content-Type': 'application/json',
                 },
-                body: `offset=${offset}`
             })
-            .then(response => {
-                if (!response.ok) throw new Error(`HTTP error! Status: ${response.status}`);
-                return response.json();
-            })
+            .then(response => response.json())
             .then(data => {
-                if (data.success) {
-                    document.getElementById('comments-container').insertAdjacentHTML('beforeend', data.comments_html);
-                    this.setAttribute('data-offset', offset + 10);
-                    if (!data.has_more) {
-                        this.style.display = 'none';  // Hide button if no more comments
+                if (data.status === 'success') {
+                    if (data.liked) {
+                        button.innerHTML = '<i class="fas fa-heart"></i> Unlike';
+                        button.classList.add('liked');
+                    } else {
+                        button.innerHTML = '<i class="far fa-heart"></i> Like';
+                        button.classList.remove('liked');
                     }
-                } else {
-                    alert('Server Error: ' + data.message);
+                    button.setAttribute('data-liked', data.liked);
+                    button.nextElementSibling.textContent = `${data.like_count} Like${data.like_count === 1 ? '' : 's'}`;
                 }
-            })
-            .catch(error => {
-                console.error('Fetch Error:', error);
-                alert('Request Failed: ' + error.message);
             });
         });
-    }
+    });
+
+    // Reply Button Functionality
+    const replyButtons = document.querySelectorAll('.reply-btn');
+    replyButtons.forEach(button => {
+        button.addEventListener('click', function() {
+            const replyForm = this.closest('.card-body').querySelector('.reply-form');
+            replyForm.style.display = replyForm.style.display === 'none' ? 'block' : 'none';
+        });
+    });
 });
 </script>
+
+<!-- Custom filter for dictionary lookup -->
+{% block extra_head %}
+<script type="text/javascript">
+    window.comment_likes = {{ comment_likes|json_script:"comment_likes" }};
+</script>
+{% endblock %}
 {% endblock %}
